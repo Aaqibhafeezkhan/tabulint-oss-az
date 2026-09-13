@@ -1,0 +1,62 @@
+import pytest
+
+from tabulint import TabulintError, load_csv, load_dataset, load_json
+
+VALID_CSV = "name,age\nAda,36\nGrace,45\n"
+VALID_JSON = '[{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]'
+
+
+def test_load_valid_csv(write):
+    rows = load_csv(write("people.csv", VALID_CSV))
+    assert rows == [{"name": "Ada", "age": "36"}, {"name": "Grace", "age": "45"}]
+
+
+def test_load_valid_json(write):
+    rows = load_json(write("people.json", VALID_JSON))
+    assert rows == [{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]
+
+
+def test_load_dataset_dispatches_on_extension(write):
+    assert load_dataset(write("a.csv", VALID_CSV)) == load_csv(write("b.csv", VALID_CSV))
+    assert load_dataset(write("a.json", VALID_JSON)) == load_json(write("b.json", VALID_JSON))
+
+
+def test_empty_csv_has_no_rows(write):
+    assert load_csv(write("empty.csv", "")) == []
+    assert load_csv(write("header_only.csv", "name,age\n")) == []
+
+
+def test_empty_json_array_has_no_rows(write):
+    assert load_json(write("empty.json", "[]")) == []
+
+
+def test_malformed_json_raises(write):
+    with pytest.raises(TabulintError, match="malformed JSON"):
+        load_json(write("bad.json", '[{"name": "Ada",}]'))
+
+
+def test_json_must_be_array_of_objects(write):
+    with pytest.raises(TabulintError, match="array of objects"):
+        load_json(write("obj.json", '{"name": "Ada"}'))
+    with pytest.raises(TabulintError, match="not a JSON object"):
+        load_json(write("mixed.json", '[{"name": "Ada"}, 42]'))
+
+
+def test_csv_with_extra_fields_raises(write):
+    with pytest.raises(TabulintError, match="more fields than the header"):
+        load_csv(write("ragged.csv", "name,age\nAda,36,extra\n"))
+
+
+def test_csv_with_empty_header_name_raises(write):
+    with pytest.raises(TabulintError, match="empty column name"):
+        load_csv(write("blank.csv", "name,\nAda,36\n"))
+
+
+def test_missing_file_raises(write, tmp_path):
+    with pytest.raises(TabulintError, match="file not found"):
+        load_dataset(str(tmp_path / "nope.csv"))
+
+
+def test_unsupported_extension_raises(write):
+    with pytest.raises(TabulintError, match="unsupported file type"):
+        load_dataset(write("data.txt", "hello"))
