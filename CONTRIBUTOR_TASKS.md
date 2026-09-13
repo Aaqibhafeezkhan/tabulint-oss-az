@@ -27,7 +27,7 @@ House rules that apply to every task:
 ### [TASK-01] Improve missing-value summary
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#1](https://github.com/ismayilzeynal/tabulint-oss-az/issues/1)
 **Labels:** `enhancement`, `good first issue`
 
 **Goal**
@@ -76,7 +76,7 @@ A dataset with 5,000 blank cells currently produces 5,000 near-identical lines. 
 ### [TASK-02] Improve duplicate-record reporting
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#2](https://github.com/ismayilzeynal/tabulint-oss-az/issues/2)
 **Labels:** `enhancement`, `good first issue`
 
 **Goal**
@@ -123,7 +123,7 @@ A record repeated 40 times currently produces 39 separate issues that all say th
 ### [TASK-03] Add CSV delimiter option
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#3](https://github.com/ismayilzeynal/tabulint-oss-az/issues/3)
 **Labels:** `enhancement`, `cli`, `data-format`
 
 **Goal**
@@ -175,7 +175,7 @@ Semicolon-delimited and tab-delimited exports are extremely common, especially f
 ### [TASK-04] Add configurable CSV encoding
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#4](https://github.com/ismayilzeynal/tabulint-oss-az/issues/4)
 **Labels:** `enhancement`, `cli`, `data-format`
 
 **Goal**
@@ -227,7 +227,7 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 ### [TASK-05] Add JSON Lines / NDJSON support
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#5](https://github.com/ismayilzeynal/tabulint-oss-az/issues/5)
 **Labels:** `enhancement`, `data-format`
 
 **Goal**
@@ -282,7 +282,7 @@ JSON Lines is the standard interchange format for log exports and streaming data
 ### [TASK-06] Improve empty-dataset handling
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#6](https://github.com/ismayilzeynal/tabulint-oss-az/issues/6)
 **Labels:** `enhancement`, `cli`
 
 **Goal**
@@ -332,7 +332,7 @@ An empty file, a CSV with only a header, and a JSON empty array are three differ
 ### [TASK-07] Improve boolean type inference
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#7](https://github.com/ismayilzeynal/tabulint-oss-az/issues/7)
 **Labels:** `enhancement`, `validation`, `good first issue`
 
 **Goal**
@@ -379,7 +379,7 @@ Real CSV exports spell booleans as yes/no, y/n, and t/f. Today an `active` colum
 ### [TASK-08] Improve numeric type-inference edge cases
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#8](https://github.com/ismayilzeynal/tabulint-oss-az/issues/8)
 **Labels:** `enhancement`, `validation`
 
 **Goal**
@@ -428,7 +428,7 @@ Python's `float()` accepts `nan` and `inf`, so those strings currently infer as 
 ### [TASK-09] Add string-length validation
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#9](https://github.com/ismayilzeynal/tabulint-oss-az/issues/9)
 **Labels:** `enhancement`, `validation`, `cli`
 
 **Goal**
@@ -485,7 +485,7 @@ Length limits are one of the most common real constraints on text data: country 
 ### [TASK-10] Add allowed-values validation
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#10](https://github.com/ismayilzeynal/tabulint-oss-az/issues/10)
 **Labels:** `enhancement`, `validation`, `cli`
 
 **Goal**
@@ -541,7 +541,7 @@ Categorical fields such as status, country, or tier are where typos and stray ca
 ### [TASK-11] Add required-field validation
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#11](https://github.com/ismayilzeynal/tabulint-oss-az/issues/11)
 **Labels:** `enhancement`, `validation`, `cli`
 
 **Goal**
@@ -595,7 +595,7 @@ Today a missing value is a warning everywhere, because tabulint cannot know whic
 ### [TASK-12] Add CLI quiet mode
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#12](https://github.com/ismayilzeynal/tabulint-oss-az/issues/12)
 **Labels:** `enhancement`, `cli`, `good first issue`
 
 **Goal**
@@ -644,7 +644,7 @@ In a CI pipeline or a shell loop over hundreds of files the full report is noise
 ### [TASK-13] Add machine-readable JSON report output
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#13](https://github.com/ismayilzeynal/tabulint-oss-az/issues/13)
 **Labels:** `enhancement`, `cli`
 
 **Goal**
@@ -698,7 +698,7 @@ The plain-text report is for humans. A CI job, a dashboard, or a script that wan
 ### [TASK-14] Add report output-file option
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#14](https://github.com/ismayilzeynal/tabulint-oss-az/issues/14)
 **Labels:** `enhancement`, `cli`, `good first issue`
 
 **Goal**
@@ -748,7 +748,7 @@ Shell redirection works for one invocation, but a CI job that wants to keep the 
 ### [TASK-15] Improve malformed-input errors
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#15](https://github.com/ismayilzeynal/tabulint-oss-az/issues/15)
 **Labels:** `enhancement`, `documentation`
 
 **Goal**
@@ -797,7 +797,7 @@ A message such as `malformed JSON (Expecting value at line 1)` tells the user so
 ### [TASK-16] Reduce one avoidable large-file memory cost
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#16](https://github.com/ismayilzeynal/tabulint-oss-az/issues/16)
 **Labels:** `performance`
 
 **Goal**
@@ -845,7 +845,7 @@ Every record is held in memory and then walked several times, and duplicate dete
 ### [TASK-17] Improve public Python API documentation
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#17](https://github.com/ismayilzeynal/tabulint-oss-az/issues/17)
 **Labels:** `documentation`, `good first issue`
 
 **Goal**
@@ -893,7 +893,7 @@ The README shows two short snippets. Someone embedding tabulint in a data pipeli
 ### [TASK-18] Add tiny example datasets
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#18](https://github.com/ismayilzeynal/tabulint-oss-az/issues/18)
 **Labels:** `documentation`, `testing`, `good first issue`
 
 **Goal**
@@ -941,7 +941,7 @@ The README shows commands against files that do not exist in the repository. A n
 ### [TASK-19] Improve Windows compatibility
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#19](https://github.com/ismayilzeynal/tabulint-oss-az/issues/19)
 **Labels:** `cross-platform`, `testing`
 
 **Goal**
@@ -991,7 +991,7 @@ CSV files on Windows arrive with CRLF line endings and are often written by Exce
 ### [TASK-20] Add supported-Python CI matrix
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#20](https://github.com/ismayilzeynal/tabulint-oss-az/issues/20)
 **Labels:** `ci`, `testing`
 
 **Goal**
@@ -1038,7 +1038,7 @@ Run the test suite against every Python version the project claims to support.
 ### [TASK-21] Improve contributor setup instructions
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#21](https://github.com/ismayilzeynal/tabulint-oss-az/issues/21)
 **Labels:** `documentation`, `good first issue`
 
 **Goal**
@@ -1085,7 +1085,7 @@ Setup friction is where most first contributions are lost. The current instructi
 ### [TASK-22] Harden user-provided file-path handling
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#22](https://github.com/ismayilzeynal/tabulint-oss-az/issues/22)
 **Labels:** `security`, `enhancement`
 
 **Goal**
@@ -1135,7 +1135,7 @@ The path comes straight from the command line and goes straight to `open`. A dir
 ### [TASK-23] Formalize CLI exit-code behavior
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#23](https://github.com/ismayilzeynal/tabulint-oss-az/issues/23)
 **Labels:** `cli`, `documentation`, `testing`
 
 **Goal**
@@ -1184,7 +1184,7 @@ Exit codes are the whole interface when tabulint runs in a pipeline. Today code 
 ### [TASK-24] Improve type hints in one core area
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#24](https://github.com/ismayilzeynal/tabulint-oss-az/issues/24)
 **Labels:** `enhancement`, `documentation`
 
 **Goal**
@@ -1234,7 +1234,7 @@ Tighten the type hints in one module so the intent is checkable rather than mere
 ### [TASK-25] Improve changelog and release instructions
 
 **Status:** OPEN
-**GitHub issue:** _pending_
+**GitHub issue:** [#25](https://github.com/ismayilzeynal/tabulint-oss-az/issues/25)
 **Labels:** `documentation`, `ci`
 
 **Goal**
