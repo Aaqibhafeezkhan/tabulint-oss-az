@@ -14,6 +14,9 @@ Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and
 pull-request workflow. Claim a task by commenting on its issue, then open one
 pull request per task.
 
+A task marked `CLAIMED` already has someone working on it. Pick another one, or
+ask on the issue before starting, so two people do not write the same patch.
+
 House rules that apply to every task:
 
 - Standard library only. No new runtime dependencies.
@@ -331,7 +334,7 @@ An empty file, a CSV with only a header, and a JSON empty array are three differ
 
 ### [TASK-07] Improve boolean type inference
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #7)
 **GitHub issue:** [#7](https://github.com/ismayilzeynal/tabulint-oss-az/issues/7)
 **Labels:** `enhancement`, `validation`, `good first issue`
 
@@ -594,7 +597,7 @@ Today a missing value is a warning everywhere, because tabulint cannot know whic
 
 ### [TASK-12] Add CLI quiet mode
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #12)
 **GitHub issue:** [#12](https://github.com/ismayilzeynal/tabulint-oss-az/issues/12)
 **Labels:** `enhancement`, `cli`, `good first issue`
 
@@ -697,7 +700,7 @@ The plain-text report is for humans. A CI job, a dashboard, or a script that wan
 
 ### [TASK-14] Add report output-file option
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #14)
 **GitHub issue:** [#14](https://github.com/ismayilzeynal/tabulint-oss-az/issues/14)
 **Labels:** `enhancement`, `cli`, `good first issue`
 
