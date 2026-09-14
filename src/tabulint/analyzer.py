@@ -4,7 +4,7 @@ from collections import Counter
 
 from .models import FieldProfile, Issue, Record
 
-BOOLEAN_LITERALS = {"true", "false"}
+BOOLEAN_LITERALS = {"true", "false", "yes", "no", "y", "n", "t", "f"}
 
 
 def is_missing(value: object) -> bool:

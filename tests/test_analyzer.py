@@ -25,6 +25,29 @@ def test_infer_type_from_strings():
     assert infer_type("Ada") == "string"
 
 
+def test_infer_type_from_boolean_literals():
+    for literal in ("yes", "no", "y", "n", "t", "f"):
+        assert infer_type(literal) == "boolean"
+        assert infer_type(literal.upper()) == "boolean"
+        assert infer_type(f"  {literal}  ") == "boolean"
+        assert infer_type(f"  {literal.upper()}  ") == "boolean"
+
+
+def test_numeric_literals_remain_integers():
+    assert infer_type("1") == "integer"
+    assert infer_type("0") == "integer"
+
+
+def test_mixed_boolean_spellings_have_no_type_mismatch():
+    records = [{"active": "yes"}, {"active": "true"}, {"active": "N"}, {"active": "false"}]
+    assert profile_fields(records)[0].dominant_type == "boolean"
+    assert check_type_consistency(records) == []
+
+
+def test_unrelated_string_is_not_boolean():
+    assert infer_type("maybe") == "string"
+
+
 def test_infer_type_from_native_values():
     assert infer_type(None) == "null"
     assert infer_type(True) == "boolean"

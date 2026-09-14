@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Improved boolean type inference to recognize `true`, `false`, `yes`, `no`, `y`, `n`, `t`, and `f` case-insensitively after stripping whitespace.
+
 ## [0.1.0] - 2026-09-14
 
 Initial release.
