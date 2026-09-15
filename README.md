@@ -57,6 +57,12 @@ tabulint data/people.csv --min age=0 --max age=120
 # Bounds are repeatable and independent
 tabulint data/scores.csv --min score=0 --max score=100 --max attempts=3
 
+# Use a semicolon-delimited CSV
+tabulint data/people.csv --delimiter ";"
+
+# Use the readable tab spelling for a tab-delimited CSV
+tabulint data/people.csv --delimiter "\\t"
+
 # Write the report to a UTF-8 file while also printing it to stdout
 tabulint data/people.csv --output report.txt
 
@@ -72,6 +78,10 @@ tabulint data/people.csv -q
 # Version
 tabulint --version
 ```
+
+The `--delimiter` option applies to CSV input and accepts exactly one character.
+Use `\\t` for a tab. The option is ignored for JSON input. An empty or
+multi-character delimiter is rejected with exit code 2.
 
 The `--output` / `-o` option overwrites an existing file rather than appending,
 and does not create missing parent directories. Reports are written with
@@ -117,8 +127,8 @@ Main public names: `check_file`, `check_records`, `format_report`,
 
 | Format | Notes |
 | --- | --- |
-| `.csv` | UTF-8, comma-delimited, first row is the header |
-| `.json` | A single JSON array of objects |
+| `.csv` | UTF-8, configurable delimiter, first row is the header |
+| `.json` | A single JSON array of objects; the CSV delimiter option is ignored |
 
 The reader is chosen from the file extension.
 
@@ -169,7 +179,7 @@ listed in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md), and
 These are the known boundaries of the current release, not bugs:
 
 - Only `.csv` and `.json` are supported. JSON Lines / NDJSON is not.
-- CSV is read as UTF-8 with a comma delimiter; neither is configurable yet.
+- CSV is read as UTF-8 with a configurable delimiter; automatic delimiter sniffing is not available.
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.

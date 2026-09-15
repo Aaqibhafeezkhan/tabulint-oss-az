@@ -45,6 +45,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="suppress normal output and print only a summary when issues are found",
     )
+    parser.add_argument(
+        "--delimiter",
+        metavar="CHAR",
+        default=",",
+        help="CSV delimiter character; use \\t for a tab",
+    )
     parser.add_argument("--version", action="version", version=f"tabulint {__version__}")
     return parser
 
@@ -52,9 +58,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and return an exit code."""
     args = build_parser().parse_args(argv)
+    delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
-        report = check_file(args.path, rules)
+        report = check_file(args.path, rules, delimiter=delimiter)
     except TabulintError as exc:
         print(f"tabulint: error: {exc}", file=sys.stderr)
         return EXIT_ERROR

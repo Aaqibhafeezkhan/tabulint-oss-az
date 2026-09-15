@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `--output` and `-o` CLI options for UTF-8 report file output.
 - Added `--quiet` and `-q` CLI options for summary-only stdout output.
+- Added configurable CSV delimiters through the Python API and `--delimiter` CLI option.
 
 ### Changed
 

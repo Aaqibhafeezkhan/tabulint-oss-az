@@ -59,10 +59,8 @@ def test_empty_dataset_exits_one(write, capsys):
 def test_output_file_matches_rendered_report(write, tmp_path, capsys):
     path = write("people.csv", CSV)
     output = tmp_path / "report.txt"
-
     report = check_file(path)
     expected = format_report(report) + "\n"
-
     assert main([path, "--output", str(output)]) == EXIT_OK
     assert output.read_text(encoding="utf-8") == expected
     assert output.read_text(encoding="utf-8").endswith("\n")
@@ -72,7 +70,6 @@ def test_output_file_matches_rendered_report(write, tmp_path, capsys):
 def test_short_output_flag_matches_long_form(write, tmp_path):
     path = write("people.csv", CSV)
     output = tmp_path / "report.txt"
-
     assert main([path, "-o", str(output)]) == EXIT_OK
     assert output.exists()
 
@@ -80,7 +77,6 @@ def test_short_output_flag_matches_long_form(write, tmp_path):
 def test_output_file_uses_utf8_for_non_ascii_value(write, tmp_path):
     path = write("people.csv", "name,age\nAda,1\nGrace,é\n")
     output = tmp_path / "report.txt"
-
     assert main([path, "--output", str(output)]) == EXIT_ISSUES
     content = output.read_bytes()
     assert "é".encode("utf-8") in content
@@ -90,7 +86,6 @@ def test_output_file_uses_utf8_for_non_ascii_value(write, tmp_path):
 def test_unwritable_output_path_exits_two(write, tmp_path, capsys):
     path = write("people.csv", CSV)
     output = tmp_path / "missing" / "report.txt"
-
     assert main([path, "--output", str(output)]) == EXIT_ERROR
     captured = capsys.readouterr()
     assert captured.out == ""
@@ -101,7 +96,6 @@ def test_unwritable_output_path_exits_two(write, tmp_path, capsys):
 def test_output_file_preserves_issue_exit_code(write, tmp_path, capsys):
     path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
     output = tmp_path / "report.txt"
-
     assert main([path, "--output", str(output)]) == EXIT_ISSUES
     assert "duplicate-record" in output.read_text(encoding="utf-8")
     assert "duplicate-record" in capsys.readouterr().out
@@ -111,7 +105,6 @@ def test_output_overwrites_existing_file(write, tmp_path):
     path = write("people.csv", CSV)
     output = tmp_path / "report.txt"
     output.write_text("old report\n", encoding="utf-8")
-
     assert main([path, "--output", str(output)]) == EXIT_OK
     assert "old report" not in output.read_text(encoding="utf-8")
 
@@ -138,7 +131,6 @@ def test_quiet_mode_with_output_writes_full_report(write, tmp_path, capsys):
     output = tmp_path / "report.txt"
     report = check_file(path)
     expected = format_report(report) + "\n"
-
     assert main([path, "--quiet", "--output", str(output)]) == EXIT_ISSUES
     assert output.read_text(encoding="utf-8") == expected
     assert capsys.readouterr().out == f"{path}: 0 error(s), 1 warning(s)\n"
@@ -163,3 +155,32 @@ def test_quiet_mode_with_output_writes_no_file_on_load_error(tmp_path, capsys):
     assert main([str(tmp_path / "nope.csv"), "--quiet", "--output", str(output)]) == EXIT_ERROR
     assert not output.exists()
     assert capsys.readouterr().out == ""
+
+
+def test_semicolon_delimiter_via_cli(write, capsys):
+    path = write("people.csv", "name;age\nAda;36\nGrace;45\n")
+    assert main([path, "--delimiter", ";"]) == EXIT_OK
+    assert "records: 2" in capsys.readouterr().out
+
+
+def test_tab_delimiter_via_cli(write, capsys):
+    path = write("people.csv", "name\tage\nAda\t36\nGrace\t45\n")
+    assert main([path, "--delimiter", r"\t"]) == EXIT_OK
+    assert "records: 2" in capsys.readouterr().out
+
+
+def test_multi_character_delimiter_exits_two(write, capsys):
+    path = write("people.csv", CSV)
+    assert main([path, "--delimiter", "||"]) == EXIT_ERROR
+    assert capsys.readouterr().err == f"tabulint: error: {path}: CSV delimiter must be exactly one character\n"
+
+
+def test_empty_delimiter_exits_two(write, capsys):
+    path = write("people.csv", CSV)
+    assert main([path, "--delimiter", ""]) == EXIT_ERROR
+    assert "delimiter must be exactly one character" in capsys.readouterr().err
+
+
+def test_delimiter_is_ignored_for_json_via_cli(write):
+    path = write("people.json", JSON)
+    assert main([path, "--delimiter", ";"]) == EXIT_OK
