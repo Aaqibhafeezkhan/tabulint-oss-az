@@ -1,4 +1,6 @@
 from tabulint.cli import EXIT_ERROR, EXIT_ISSUES, EXIT_OK, main
+from tabulint import check_file
+from tabulint.report import format_report
 
 CSV = "name,age\nAda,36\nGrace,45\n"
 JSON = '[{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]'
@@ -52,3 +54,63 @@ def test_unsupported_extension_exits_two(write):
 def test_empty_dataset_exits_one(write, capsys):
     assert main([write("empty.json", "[]")]) == EXIT_ISSUES
     assert "empty-dataset" in capsys.readouterr().out
+
+
+def test_output_file_matches_rendered_report(write, tmp_path, capsys):
+    path = write("people.csv", CSV)
+    output = tmp_path / "report.txt"
+
+    report = check_file(path)
+    expected = format_report(report) + "\n"
+
+    assert main([path, "--output", str(output)]) == EXIT_OK
+    assert output.read_text(encoding="utf-8") == expected
+    assert output.read_text(encoding="utf-8").endswith("\n")
+    assert capsys.readouterr().out == expected
+
+
+def test_short_output_flag_matches_long_form(write, tmp_path):
+    path = write("people.csv", CSV)
+    output = tmp_path / "report.txt"
+
+    assert main([path, "-o", str(output)]) == EXIT_OK
+    assert output.exists()
+
+
+def test_output_file_uses_utf8_for_non_ascii_value(write, tmp_path):
+    path = write("people.csv", "name,age\nAda,1\nGrace,é\n")
+    output = tmp_path / "report.txt"
+
+    assert main([path, "--output", str(output)]) == EXIT_ISSUES
+    content = output.read_bytes()
+    assert "é".encode("utf-8") in content
+    assert content.endswith(b"\n")
+
+
+def test_unwritable_output_path_exits_two(write, tmp_path, capsys):
+    path = write("people.csv", CSV)
+    output = tmp_path / "missing" / "report.txt"
+
+    assert main([path, "--output", str(output)]) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "could not write output file" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_output_file_preserves_issue_exit_code(write, tmp_path, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    output = tmp_path / "report.txt"
+
+    assert main([path, "--output", str(output)]) == EXIT_ISSUES
+    assert "duplicate-record" in output.read_text(encoding="utf-8")
+    assert "duplicate-record" in capsys.readouterr().out
+
+
+def test_output_overwrites_existing_file(write, tmp_path):
+    path = write("people.csv", CSV)
+    output = tmp_path / "report.txt"
+    output.write_text("old report\n", encoding="utf-8")
+
+    assert main([path, "--output", str(output)]) == EXIT_OK
+    assert "old report" not in output.read_text(encoding="utf-8")

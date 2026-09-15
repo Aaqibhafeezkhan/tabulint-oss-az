@@ -57,9 +57,20 @@ tabulint data/people.csv --min age=0 --max age=120
 # Bounds are repeatable and independent
 tabulint data/scores.csv --min score=0 --max score=100 --max attempts=3
 
+# Write the report to a UTF-8 file while also printing it to stdout
+tabulint data/people.csv --output report.txt
+
+# The short output flag is equivalent
+tabulint data/people.csv -o report.txt
+
 # Version
 tabulint --version
 ```
+
+The `--output` / `-o` option overwrites an existing file rather than appending,
+and does not create missing parent directories. Reports are written with
+explicit UTF-8 encoding and Unix-style `\n` line endings. The report is also
+printed to stdout. A write failure is reported on stderr and exits with code 2.
 
 ## Python API
 
@@ -123,7 +134,10 @@ whitespace: `true`, `false`, `yes`, `no`, `y`, `n`, `t`, and `f`.
 | --- | --- |
 | `0` | Dataset loaded and no issues found |
 | `1` | Dataset loaded and at least one issue was found |
-| `2` | The dataset could not be loaded, or the arguments were invalid |
+| `2` | The dataset could not be loaded, the arguments were invalid, or the report could not be written |
+
+A successful report write does not change the data-quality exit code. For
+example, a dataset with issues still exits with code 1 when `--output` is used.
 
 This makes `tabulint` usable as a CI gate:
 
@@ -147,6 +161,6 @@ These are the known boundaries of the current release, not bugs:
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.
-- Report output is plain text only; there is no machine-readable or file output.
+- Report output is plain text only; machine-readable formats are not available yet.
 - Type inference is deliberately simple and has no date/time or currency
   awareness.

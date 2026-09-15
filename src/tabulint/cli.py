@@ -33,6 +33,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="FIELD=NUMBER",
         help="require FIELD to be at most NUMBER (repeatable)",
     )
+    parser.add_argument(
+        "--output",
+        "-o",
+        metavar="PATH",
+        help="write the report to PATH as UTF-8, overwriting an existing file",
+    )
     parser.add_argument("--version", action="version", version=f"tabulint {__version__}")
     return parser
 
@@ -47,7 +53,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"tabulint: error: {exc}", file=sys.stderr)
         return EXIT_ERROR
 
-    print(format_report(report))
+    rendered = format_report(report) + "\n"
+
+    if args.output:
+        try:
+            with open(args.output, "w", encoding="utf-8", newline="\n") as output_file:
+                output_file.write(rendered)
+        except OSError as exc:
+            print(f"tabulint: error: could not write output file '{args.output}': {exc}", file=sys.stderr)
+            return EXIT_ERROR
+
+    print(rendered, end="")
     return EXIT_OK if report.ok else EXIT_ISSUES
 
 
