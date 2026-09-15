@@ -598,7 +598,7 @@ Today a missing value is a warning everywhere, because tabulint cannot know whic
 
 ### [TASK-12] Add CLI quiet mode
 
-**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #12)
+**Status:** DONE (issue #12, merged in #27)
 **GitHub issue:** [#12](https://github.com/ismayilzeynal/tabulint-oss-az/issues/12)
 **Labels:** `enhancement`, `cli`, `good first issue`
 

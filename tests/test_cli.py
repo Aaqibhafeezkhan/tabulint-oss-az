@@ -142,3 +142,24 @@ def test_quiet_mode_with_output_writes_full_report(write, tmp_path, capsys):
     assert main([path, "--quiet", "--output", str(output)]) == EXIT_ISSUES
     assert output.read_text(encoding="utf-8") == expected
     assert capsys.readouterr().out == f"{path}: 0 error(s), 1 warning(s)\n"
+
+
+def test_quiet_mode_still_reports_load_errors(tmp_path, capsys):
+    assert main([str(tmp_path / "nope.csv"), "--quiet"]) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "file not found" in captured.err
+
+
+def test_quiet_mode_still_reports_invalid_bounds(write, capsys):
+    assert main([write("people.csv", CSV), "--quiet", "--min", "age"]) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "invalid bound" in captured.err
+
+
+def test_quiet_mode_with_output_writes_no_file_on_load_error(tmp_path, capsys):
+    output = tmp_path / "report.txt"
+    assert main([str(tmp_path / "nope.csv"), "--quiet", "--output", str(output)]) == EXIT_ERROR
+    assert not output.exists()
+    assert capsys.readouterr().out == ""
