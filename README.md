@@ -114,7 +114,8 @@ The reader is chosen from the file extension.
 
 Inferred types are `integer`, `float`, `boolean`, `string`, and `null`. Strings
 are parsed, so the CSV text `12` and the JSON number `12` both infer as
-`integer`.
+`integer`. Boolean strings are recognized case-insensitively after stripping
+whitespace: `true`, `false`, `yes`, `no`, `y`, `n`, `t`, and `f`.
 
 ## Exit codes
 
