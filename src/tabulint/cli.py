@@ -39,6 +39,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="write the report to PATH as UTF-8, overwriting an existing file",
     )
+    parser.add_argument(
+        "--quiet",
+        "-q",
+        action="store_true",
+        help="suppress normal output and print only a summary when issues are found",
+    )
     parser.add_argument("--version", action="version", version=f"tabulint {__version__}")
     return parser
 
@@ -63,7 +69,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"tabulint: error: could not write output file '{args.output}': {exc}", file=sys.stderr)
             return EXIT_ERROR
 
-    print(rendered, end="")
+    if args.quiet:
+        if not report.ok:
+            print(f"{report.path}: {report.error_count} error(s), {report.warning_count} warning(s)")
+    else:
+        print(rendered, end="")
+
     return EXIT_OK if report.ok else EXIT_ISSUES
 
 

@@ -114,3 +114,31 @@ def test_output_overwrites_existing_file(write, tmp_path):
 
     assert main([path, "--output", str(output)]) == EXIT_OK
     assert "old report" not in output.read_text(encoding="utf-8")
+
+
+def test_quiet_mode_clean_dataset_prints_nothing(write, capsys):
+    assert main([write("people.csv", CSV), "--quiet"]) == EXIT_OK
+    assert capsys.readouterr().out == ""
+
+
+def test_quiet_mode_prints_one_summary_line(write, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    assert main([path, "--quiet"]) == EXIT_ISSUES
+    assert capsys.readouterr().out == f"{path}: 0 error(s), 1 warning(s)\n"
+
+
+def test_short_quiet_flag_matches_long_form(write, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    assert main([path, "-q"]) == EXIT_ISSUES
+    assert capsys.readouterr().out == f"{path}: 0 error(s), 1 warning(s)\n"
+
+
+def test_quiet_mode_with_output_writes_full_report(write, tmp_path, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    output = tmp_path / "report.txt"
+    report = check_file(path)
+    expected = format_report(report) + "\n"
+
+    assert main([path, "--quiet", "--output", str(output)]) == EXIT_ISSUES
+    assert output.read_text(encoding="utf-8") == expected
+    assert capsys.readouterr().out == f"{path}: 0 error(s), 1 warning(s)\n"
