@@ -126,7 +126,7 @@ A record repeated 40 times currently produces 39 separate issues that all say th
 
 ### [TASK-03] Add CSV delimiter option
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #3)
 **GitHub issue:** [#3](https://github.com/ismayilzeynal/tabulint-oss-az/issues/3)
 **Labels:** `enhancement`, `cli`, `data-format`
 
@@ -230,7 +230,7 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 
 ### [TASK-05] Add JSON Lines / NDJSON support
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #5)
 **GitHub issue:** [#5](https://github.com/ismayilzeynal/tabulint-oss-az/issues/5)
 **Labels:** `enhancement`, `data-format`
 
@@ -647,7 +647,7 @@ In a CI pipeline or a shell loop over hundreds of files the full report is noise
 
 ### [TASK-13] Add machine-readable JSON report output
 
-**Status:** OPEN
+**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #13)
 **GitHub issue:** [#13](https://github.com/ismayilzeynal/tabulint-oss-az/issues/13)
 **Labels:** `enhancement`, `cli`
 
