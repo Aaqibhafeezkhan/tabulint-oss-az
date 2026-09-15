@@ -63,6 +63,12 @@ tabulint data/people.csv --output report.txt
 # The short output flag is equivalent
 tabulint data/people.csv -o report.txt
 
+# Suppress normal output and report only a summary when issues are found
+tabulint data/people.csv --quiet
+
+# The short quiet flag is equivalent
+tabulint data/people.csv -q
+
 # Version
 tabulint --version
 ```
@@ -71,6 +77,12 @@ The `--output` / `-o` option overwrites an existing file rather than appending,
 and does not create missing parent directories. Reports are written with
 explicit UTF-8 encoding and Unix-style `\n` line endings. The report is also
 printed to stdout. A write failure is reported on stderr and exits with code 2.
+
+The `--quiet` / `-q` option controls stdout only. When issues are found, it
+prints one summary line containing the input path and error/warning counts;
+when the dataset is clean, it prints nothing. When `--quiet` and `--output`
+are used together, the complete report is still written to the output file
+while only the quiet summary is printed to stdout.
 
 ## Python API
 
