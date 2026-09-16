@@ -51,6 +51,12 @@ tabulint data/people.csv
 # Check a JSON array of objects
 tabulint data/people.json
 
+# Check a JSON Lines file
+tabulint data/events.jsonl
+
+# JSON Lines also supports the .ndjson extension
+tabulint data/events.ndjson
+
 # Require a numeric field to stay within a range
 tabulint data/people.csv --min age=0 --max age=120
 
@@ -110,7 +116,7 @@ assert not report.ok
 
 Main public names: `check_file`, `check_records`, `format_report`,
 `build_numeric_rules`, `check_numeric_rules`, `load_csv`, `load_json`,
-`load_dataset`, `analyze`, `profile_fields`, `infer_type`, and the
+`load_jsonl`, `load_dataset`, `analyze`, `profile_fields`, `infer_type`, and the
 `Report`, `Issue`, `FieldProfile`, `NumericRule`, `TabulintError` types.
 
 ## Supported formats
@@ -119,6 +125,8 @@ Main public names: `check_file`, `check_records`, `format_report`,
 | --- | --- |
 | `.csv` | UTF-8, comma-delimited, first row is the header |
 | `.json` | A single JSON array of objects |
+| `.jsonl` | One JSON object per line; blank lines are skipped |
+| `.ndjson` | Alias for `.jsonl` |
 
 The reader is chosen from the file extension.
 
@@ -131,7 +139,7 @@ The reader is chosen from the file extension.
 | `duplicate-record` | warning | A record is identical to an earlier record |
 | `type-mismatch` | error | A value does not match the field's dominant inferred type |
 | `below-minimum` | error | A value is below a `--min` bound |
-| `above-maximum` | error | A value is above a `--max` bound |
+| `above-maximum` | error | A value is above an `--max` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
 | `empty-dataset` | warning | The dataset contains no records |
 
@@ -168,8 +176,8 @@ listed in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md), and
 
 These are the known boundaries of the current release, not bugs:
 
-- Only `.csv` and `.json` are supported. JSON Lines / NDJSON is not.
-- CSV is read as UTF-8 with a comma delimiter; neither is configurable yet.
+- `.csv`, `.json`, `.jsonl`, and `.ndjson` are supported.
+- CSV is read as UTF-8 with a comma delimiter; automatic delimiter sniffing is not available.
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.
