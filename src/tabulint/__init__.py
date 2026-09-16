@@ -60,6 +60,6 @@ def check_records(
 
 
 def check_file(path: str | Path, rules: list[NumericRule] | None = None) -> Report:
-    """Load a CSV, JSON, or JSON Lines file and run all checks against it."""
+    """Load a CSV or JSON file and run all checks against it."""
     records = load_dataset(path)
     return check_records(records, rules, path=str(path))
