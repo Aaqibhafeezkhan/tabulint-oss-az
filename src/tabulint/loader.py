@@ -1,4 +1,4 @@
-"""Loading CSV and JSON datasets into a list of records."""
+"""Loading CSV, JSON, and JSON Lines datasets into a list of records."""
 
 import csv
 import json
@@ -56,6 +56,31 @@ def load_json(path: str | Path) -> list[Record]:
     return [dict(item) for item in data]
 
 
+def load_jsonl(path: str | Path) -> list[Record]:
+    """Read a JSON Lines file containing one JSON object per line."""
+    path = Path(path)
+    rows: list[Record] = []
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise TabulintError(
+                        f"{path}: malformed JSON on line {line_number} ({exc.msg})"
+                    ) from exc
+                if not isinstance(item, dict):
+                    raise TabulintError(f"{path}: line {line_number} is not a JSON object")
+                rows.append(dict(item))
+    except FileNotFoundError as exc:
+        raise TabulintError(f"{path}: file not found") from exc
+    except UnicodeDecodeError as exc:
+        raise TabulintError(f"{path}: file is not valid UTF-8") from exc
+    return rows
+
+
 def load_dataset(path: str | Path) -> list[Record]:
     """Load a dataset, choosing the reader from the file extension."""
     suffix = Path(path).suffix.lower()
@@ -63,4 +88,9 @@ def load_dataset(path: str | Path) -> list[Record]:
         return load_csv(path)
     if suffix == ".json":
         return load_json(path)
-    raise TabulintError(f"{path}: unsupported file type '{suffix or 'none'}' (expected .csv or .json)")
+    if suffix in {".jsonl", ".ndjson"}:
+        return load_jsonl(path)
+    raise TabulintError(
+        f"{path}: unsupported file type '{suffix or 'none'}' "
+        "(expected .csv, .json, .jsonl, or .ndjson)"
+    )
