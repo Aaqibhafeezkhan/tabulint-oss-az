@@ -4,6 +4,7 @@ from tabulint.report import format_report
 
 CSV = "name,age\nAda,36\nGrace,45\n"
 JSON = '[{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]'
+JSONL = '{"name": "Ada", "age": 36}\n{"name": "Grace", "age": 45}\n'
 
 
 def test_clean_csv_exits_zero(write, capsys):
@@ -15,8 +16,22 @@ def test_clean_json_exits_zero(write):
     assert main([write("people.json", JSON)]) == EXIT_OK
 
 
+def test_clean_jsonl_exits_zero(write):
+    assert main([write("people.jsonl", JSONL)]) == EXIT_OK
+
+
+def test_clean_ndjson_exits_zero(write):
+    assert main([write("people.ndjson", JSONL)]) == EXIT_OK
+
+
 def test_dataset_with_issues_exits_one(write, capsys):
     path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    assert main([path]) == EXIT_ISSUES
+    assert "duplicate-record" in capsys.readouterr().out
+
+
+def test_ndjson_dataset_with_duplicates_exits_one(write, capsys):
+    path = write("dupes.ndjson", '{"name": "Ada", "age": 36}\n{"name": "Ada", "age": 36}\n')
     assert main([path]) == EXIT_ISSUES
     assert "duplicate-record" in capsys.readouterr().out
 
@@ -29,6 +44,13 @@ def test_missing_file_exits_two(write, tmp_path, capsys):
 def test_malformed_json_exits_two(write, capsys):
     assert main([write("bad.json", "{oops")]) == EXIT_ERROR
     assert "error:" in capsys.readouterr().err
+
+
+def test_malformed_jsonl_exits_two(write, capsys):
+    path = write("bad.jsonl", '{"name": "Ada"}\n\n{oops}\n')
+    assert main([path]) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert "line 3" in captured.err
 
 
 def test_numeric_rule_violation_exits_one(write, capsys):
