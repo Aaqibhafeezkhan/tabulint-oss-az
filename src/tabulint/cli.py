@@ -16,9 +16,9 @@ EXIT_ERROR = 2
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="tabulint",
-        description="Check CSV and JSON datasets for common data-quality problems.",
+        description="Check CSV, JSON, and JSON Lines datasets for common data-quality problems.",
     )
-    parser.add_argument("path", help="path to a .csv or .json dataset")
+    parser.add_argument("path", help="path to a .csv, .json, .jsonl, or .ndjson dataset")
     parser.add_argument(
         "--min",
         dest="minimums",
