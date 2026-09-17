@@ -60,6 +60,12 @@ tabulint data/people.csv --min age=0 --max age=120
 # Bounds are repeatable and independent
 tabulint data/scores.csv --min score=0 --max score=100 --max attempts=3
 
+# Use a semicolon-delimited CSV
+tabulint data/people.csv --delimiter ";"
+
+# Use the readable tab spelling for a tab-delimited CSV
+tabulint data/people.csv --delimiter "\t"
+
 # Write the report to a UTF-8 file while also printing it to stdout
 tabulint data/people.csv --output report.txt
 
@@ -78,6 +84,10 @@ tabulint data/people.csv -q
 # Version
 tabulint --version
 ```
+
+The `--delimiter` option applies to CSV input and accepts exactly one character.
+Use `\t` for a tab. The option is ignored for JSON input. An empty or
+multi-character delimiter is rejected with exit code 2.
 
 The `--format` option chooses the report representation: `text` is the default,
 and `json` emits a pretty-printed JSON document. JSON stdout contains only the
@@ -103,7 +113,7 @@ For example:
     {
       "code": "above-maximum",
       "severity": "error",
-      "message": "field 'age' has value 200 above maximum 120",
+      "message": "field 'age' value 200 is above maximum 120",
       "field": "age",
       "row": 2
     }
@@ -160,8 +170,8 @@ Main public names: `check_file`, `check_records`, `format_report`,
 
 | Format | Notes |
 | --- | --- |
-| `.csv` | UTF-8, comma-delimited, first row is the header |
-| `.json` | A single JSON array of objects |
+| `.csv` | UTF-8, configurable delimiter, first row is the header |
+| `.json` | A single JSON array of objects; the CSV delimiter option is ignored |
 
 The reader is chosen from the file extension.
 
@@ -212,8 +222,8 @@ listed in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md), and
 
 These are the known boundaries of the current release, not bugs:
 
-- Only `.csv` and `.json` are supported.
-- CSV is read as UTF-8 with a comma delimiter; neither is configurable yet.
+- Only `.csv` and `.json` are supported. JSON Lines / NDJSON is not.
+- CSV is read as UTF-8 with a configurable delimiter; automatic delimiter sniffing is not available.
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.

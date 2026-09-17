@@ -7,12 +7,14 @@ from pathlib import Path
 from .models import Record, TabulintError
 
 
-def load_csv(path: str | Path) -> list[Record]:
+def load_csv(path: str | Path, *, delimiter: str = ",") -> list[Record]:
     """Read a CSV file with a header row into a list of dicts."""
     path = Path(path)
+    if len(delimiter) != 1:
+        raise TabulintError(f"{path}: CSV delimiter must be exactly one character")
     try:
         with path.open("r", newline="", encoding="utf-8") as handle:
-            reader = csv.DictReader(handle)
+            reader = csv.DictReader(handle, delimiter=delimiter)
             if reader.fieldnames is None:
                 return []
             if any(name is None or name == "" for name in reader.fieldnames):
@@ -56,11 +58,11 @@ def load_json(path: str | Path) -> list[Record]:
     return [dict(item) for item in data]
 
 
-def load_dataset(path: str | Path) -> list[Record]:
+def load_dataset(path: str | Path, *, delimiter: str = ",") -> list[Record]:
     """Load a dataset, choosing the reader from the file extension."""
     suffix = Path(path).suffix.lower()
     if suffix == ".csv":
-        return load_csv(path)
+        return load_csv(path, delimiter=delimiter)
     if suffix == ".json":
         return load_json(path)
     raise TabulintError(f"{path}: unsupported file type '{suffix or 'none'}' (expected .csv or .json)")

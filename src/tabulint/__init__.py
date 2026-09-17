@@ -59,7 +59,12 @@ def check_records(
     )
 
 
-def check_file(path: str | Path, rules: list[NumericRule] | None = None) -> Report:
+def check_file(
+    path: str | Path,
+    rules: list[NumericRule] | None = None,
+    *,
+    delimiter: str = ",",
+) -> Report:
     """Load a CSV or JSON file and run all checks against it."""
-    records = load_dataset(path)
+    records = load_dataset(path, delimiter=delimiter)
     return check_records(records, rules, path=str(path))
