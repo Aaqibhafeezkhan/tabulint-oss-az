@@ -5,7 +5,7 @@ from pathlib import Path
 from .analyzer import analyze, infer_type, is_missing, profile_fields
 from .loader import load_csv, load_dataset, load_json, load_jsonl
 from .models import FieldProfile, Issue, Record, Report, TabulintError
-from .report import format_report
+from .report import format_report, format_report_json
 from .validators import NumericRule, build_numeric_rules, check_numeric_rules
 
 __version__ = "0.1.0"
@@ -24,6 +24,7 @@ __all__ = [
     "check_numeric_rules",
     "check_records",
     "format_report",
+    "format_report_json",
     "infer_type",
     "is_missing",
     "load_csv",
@@ -59,7 +60,12 @@ def check_records(
     )
 
 
-def check_file(path: str | Path, rules: list[NumericRule] | None = None) -> Report:
+def check_file(
+    path: str | Path,
+    rules: list[NumericRule] | None = None,
+    *,
+    delimiter: str = ",",
+) -> Report:
     """Load a CSV or JSON file and run all checks against it."""
-    records = load_dataset(path)
+    records = load_dataset(path, delimiter=delimiter)
     return check_records(records, rules, path=str(path))

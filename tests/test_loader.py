@@ -89,3 +89,28 @@ def test_missing_file_raises(write, tmp_path):
 def test_unsupported_extension_raises(write):
     with pytest.raises(TabulintError, match="unsupported file type"):
         load_dataset(write("data.txt", "hello"))
+
+
+def test_load_semicolon_delimited_csv(write):
+    rows = load_csv(write("people.csv", "name;age\nAda;36\nGrace;45\n"), delimiter=";")
+    assert rows == [{"name": "Ada", "age": "36"}, {"name": "Grace", "age": "45"}]
+
+
+def test_load_comma_delimited_csv_without_option_is_unchanged(write):
+    rows = load_csv(write("people.csv", VALID_CSV))
+    assert rows == [{"name": "Ada", "age": "36"}, {"name": "Grace", "age": "45"}]
+
+
+def test_multi_character_delimiter_raises(write):
+    with pytest.raises(TabulintError, match="delimiter must be exactly one character"):
+        load_csv(write("people.csv", VALID_CSV), delimiter="||")
+
+
+def test_empty_delimiter_raises(write):
+    with pytest.raises(TabulintError, match="delimiter must be exactly one character"):
+        load_csv(write("people.csv", VALID_CSV), delimiter="")
+
+
+def test_delimiter_is_ignored_for_json(write):
+    rows = load_dataset(write("people.json", VALID_JSON), delimiter=";")
+    assert rows == [{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]
