@@ -1,22 +1,22 @@
 # Contributor Tasks
 
-This file is the planned work for `tabulint`. Every task here has a matching
-GitHub issue; [ISSUE_MAP.md](ISSUE_MAP.md) maps each task ID to its issue number
-and URL.
+This file gives longer descriptions for the initial `tabulint` tasks. Each task
+here has a matching GitHub issue; [ISSUE_MAP.md](ISSUE_MAP.md) maps its ID to
+the issue number and URL. New issues may not have a task ID.
 
 Each task is independently useful and can be implemented on its own. None of them
 is a prerequisite for another, though a few are natural neighbours and say so.
 
-The `Status` line on each task tracks its progress in this file; the GitHub issue
-is the source of truth overall.
+The `Status` line is a snapshot; the GitHub issue is the source of truth for
+current availability.
 
 Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and
-pull-request workflow. Claim a task by commenting on its issue, then open one
-pull request per task.
+pull-request workflow. Check the issue discussion and linked pull requests,
+then comment with your intended approach before starting. Open one focused
+pull request per issue.
 
-A task marked `CLAIMED` already has someone working on it, and one marked `DONE`
-has already shipped. Pick a task that is still `OPEN`, or ask on the issue before
-starting, so two people do not write the same patch.
+A task marked `DONE` has already shipped. A task marked `OPEN` here may have
+newer activity on GitHub, so check the issue before writing a patch.
 
 House rules that apply to every task:
 
@@ -24,7 +24,9 @@ House rules that apply to every task:
 - Prefer a plain function over a new class or abstraction.
 - Add tests for the behavior you change; the suite must stay green.
 - Update `README.md` when user-visible behavior changes.
-- Add a `CHANGELOG.md` entry under `Unreleased`.
+- For user-visible behavior changes, add a brief `CHANGELOG.md` entry under
+  `Unreleased`; documentation-only, test-only, and internal maintenance changes
+  generally do not need one.
 
 ## Tasks
 
@@ -176,7 +178,7 @@ Semicolon-delimited and tab-delimited exports are extremely common, especially f
 - Quote-character or escape-character options.
 - Encoding options, which are TASK-04.
 
-### [TASK-04] Add configurable CSV encoding
+### [TASK-04] Add configurable input encoding
 
 **Status:** OPEN
 **GitHub issue:** [#4](https://github.com/ismayilzeynal/tabulint-oss-az/issues/4)
@@ -184,7 +186,7 @@ Semicolon-delimited and tab-delimited exports are extremely common, especially f
 
 **Goal**
 
-Allow the CSV and JSON readers to use an encoding other than UTF-8.
+Allow the CSV, JSON, and JSONL/NDJSON readers to use an encoding other than UTF-8.
 
 **Why useful**
 
@@ -201,8 +203,10 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 
 **Requirements**
 
-- Add an `encoding` parameter to `load_csv` and `load_json`, defaulting to `utf-8`.
-- Thread it through `load_dataset` and `check_file`.
+- Add an `encoding` parameter to `load_csv`, `load_json`, and `load_jsonl`,
+  defaulting to `utf-8`.
+- Thread it through `load_dataset` and `check_file`, including the `.jsonl` and
+  `.ndjson` dispatch paths.
 - Add an `--encoding` CLI option.
 - An unknown encoding name must raise `TabulintError` with a clear message rather than a raw `LookupError`.
 - A decode failure must keep naming the file and also name the encoding that was attempted.
@@ -211,6 +215,7 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 **Acceptance criteria**
 
 - A cp1252 file loads correctly with `--encoding cp1252`.
+- The selected encoding works for CSV, JSON, JSONL, and NDJSON input.
 - A UTF-8 file still loads with no option set.
 - An unknown encoding name exits with code 2 and a readable message.
 - A decode failure message names both the file and the encoding.
@@ -218,6 +223,8 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 **Tests required**
 
 - A cp1252-encoded CSV with an accented character loads correctly.
+- A non-UTF-8 JSON file and JSONL file load with the selected encoding; `.ndjson`
+  dispatch uses the same setting as `.jsonl`.
 - An unknown encoding raises `TabulintError`.
 - Decoding a non-UTF-8 file as UTF-8 raises a message naming the encoding.
 - A UTF-8 file with a byte-order mark behaves as documented.
@@ -798,7 +805,7 @@ A message such as `malformed JSON (Expecting value at line 1)` tells the user so
 - A tolerant mode that skips bad rows.
 - Changing the exception hierarchy.
 
-### [TASK-16] Reduce one avoidable large-file memory cost
+### [TASK-16] Reduce one measured analysis cost
 
 **Status:** OPEN
 **GitHub issue:** [#16](https://github.com/ismayilzeynal/tabulint-oss-az/issues/16)
@@ -806,11 +813,14 @@ A message such as `malformed JSON (Expecting value at line 1)` tells the user so
 
 **Goal**
 
-Remove one concrete, measurable source of avoidable memory use when checking a large dataset.
+Find and reduce one measured runtime or peak-memory cost when checking a large
+dataset, without changing the results.
 
 **Why useful**
 
-Every record is held in memory and then walked several times, and duplicate detection additionally keeps a full key tuple per record. On a multi-gigabyte export that is the difference between a tool that runs and one that is killed. This task is deliberately scoped to one improvement, not a rewrite.
+Analysis makes several passes over records and creates intermediate data. A
+measurement can show which cost is worth addressing. This task is deliberately
+scoped to one demonstrated improvement, not a rewrite.
 
 **Likely files**
 
@@ -820,16 +830,17 @@ Every record is held in memory and then walked several times, and duplicate dete
 
 **Requirements**
 
-- Pick exactly one avoidable cost and fix it. Good candidates: storing a hash of each record key instead of the full tuple in `check_duplicates`, or walking the records once instead of once per check.
-- Measure before and after on a generated dataset of at least 100,000 records, and put the numbers in the pull-request description.
+- Profile a generated dataset of at least 100,000 records, choose one measured
+  cost, and make a focused improvement.
+- Measure before and after under the same conditions. Put the dataset shape,
+  commands, runtime and/or peak-memory numbers in the pull-request description.
 - Behavior must not change: the same issues, in the same order, with the same messages.
-- If you hash record keys, document the collision consequence honestly and keep the false-positive risk negligible.
 - Do not add a dependency, and do not introduce a streaming architecture; that is a much larger change.
 - Keep the code readable. A small, clearly explained win is worth more here than a clever one.
 
 **Acceptance criteria**
 
-- A measurable reduction in peak memory or allocations is demonstrated with numbers.
+- A repeatable reduction in runtime or peak memory is demonstrated with numbers.
 - The full test suite passes with no behavior change.
 - No new dependency is added.
 - The pull-request description states the measurement method.
@@ -837,7 +848,7 @@ Every record is held in memory and then walked several times, and duplicate dete
 **Tests required**
 
 - Existing duplicate and analyzer tests still pass unchanged.
-- A test covering the specific structure you changed, for example that hashed keys still detect duplicates correctly.
+- A regression test covers the behavior of the code path you changed.
 - A moderately large generated dataset still produces the expected issue counts.
 
 **Out of scope**

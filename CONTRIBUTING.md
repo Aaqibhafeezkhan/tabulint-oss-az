@@ -57,19 +57,20 @@ python -m pytest
 
 ## 5. Create a focused branch
 
-One branch per issue. Name it after the task ID you are working on:
+Use one branch per issue, with a short descriptive name. Replace `123` in the
+examples below with your issue number:
 
 ```bash
-git checkout -b task-03-csv-delimiter
+git checkout -b issue-123-short-description
 ```
 
-## 6. Implement exactly one issue
+## 6. Implement one focused issue
 
 Pick an issue from the [issue tracker](https://github.com/ismayilzeynal/tabulint-oss-az/issues).
-Each issue maps to a task in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md), which
-lists the goal, the likely files, the acceptance criteria, the required tests,
-and what is out of scope. Stay inside that scope; unrelated refactors make a pull
-request much harder to review.
+Check its discussion, assignee, and linked pull requests, then comment with
+your intended approach before starting. Some issues have a longer description
+in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md). Follow the issue's acceptance
+criteria and keep unrelated changes out of the pull request.
 
 Style notes:
 
@@ -77,7 +78,11 @@ Style notes:
 - Prefer a plain function over a new class or abstraction.
 - Match the surrounding code: short modules, short functions, few comments.
 - Update `README.md` when you change user-visible behavior.
-- Add an entry to the `Unreleased` section of `CHANGELOG.md`.
+- For user-visible behavior changes, add a brief entry under `Unreleased` in
+  `CHANGELOG.md`. Documentation-only, test-only, and internal maintenance changes
+  generally do not need an entry.
+- Code assistants are welcome. Review the diff yourself, run the tests, and be
+  able to explain the change you submit.
 
 ## 7. Run the tests
 
@@ -94,7 +99,7 @@ Write a commit message that describes the software change:
 
 ```bash
 git add .
-git commit -m "Add CSV delimiter option"
+git commit -m "Describe the change clearly"
 ```
 
 Good subjects are imperative and specific: `Add allowed-values validation`,
@@ -105,7 +110,7 @@ used; commit under your own Git identity.
 ## 9. Push to your fork
 
 ```bash
-git push -u origin task-03-csv-delimiter
+git push -u origin issue-123-short-description
 ```
 
 ## 10. Open a pull request against upstream `main`
@@ -120,7 +125,7 @@ In the pull-request description, state the problem, the change you made, and the
 tests you ran. Reference the issue so it closes on merge:
 
 ```
-Closes #12
+Closes #123
 ```
 
 ## Review

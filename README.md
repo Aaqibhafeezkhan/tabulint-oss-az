@@ -1,6 +1,6 @@
 # tabulint
 
-A lightweight open-source CLI and Python library for practical CSV/JSON data-quality checks.
+A lightweight open-source CLI and Python library for practical CSV, JSON, and JSON Lines data-quality checks.
 
 `tabulint` loads a dataset, infers what each field looks like, and reports the
 problems that actually bite in practice: missing values, duplicate records,
@@ -222,10 +222,18 @@ tabulint data/people.csv --min age=0 || exit 1
 
 ## Contributing
 
-Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for the
-fork-and-pull-request workflow, then pick an open issue. The planned work is
-listed in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md), and
-[ISSUE_MAP.md](ISSUE_MAP.md) maps each task ID to its GitHub issue.
+Contributions are welcome. To get started:
+
+1. Pick an [open issue](https://github.com/ismayilzeynal/tabulint-oss-az/issues),
+   or browse issues marked [`good first issue`](https://github.com/ismayilzeynal/tabulint-oss-az/labels/good%20first%20issue).
+   Check the discussion and linked pull requests before starting, then comment
+   to say what you plan to work on.
+2. Follow [CONTRIBUTING.md](CONTRIBUTING.md) to fork the repository, run the
+   tests, and open a focused pull request. Mention the issue in the PR.
+
+The issue tracker shows what is currently available. The more detailed
+[contributor task descriptions](CONTRIBUTOR_TASKS.md) are useful background for
+issues that have a task ID.
 
 ## Limitations
 

@@ -18,9 +18,9 @@ python -m pytest
 
 - [ ] The change addresses a single issue.
 - [ ] `python -m pytest` passes locally.
-- [ ] New behavior is covered by tests.
+- [ ] Changed behavior is covered by tests, where applicable.
 - [ ] `README.md` is updated if user-visible behavior changed.
-- [ ] `CHANGELOG.md` has an entry under `Unreleased`.
+- [ ] User-visible behavior changes have an entry under `Unreleased` in `CHANGELOG.md` (or this does not apply).
 - [ ] No new runtime dependencies were added.
 
 ## Related issue
