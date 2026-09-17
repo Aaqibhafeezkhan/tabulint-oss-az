@@ -7,8 +7,8 @@ and URL.
 Each task is independently useful and can be implemented on its own. None of them
 is a prerequisite for another, though a few are natural neighbours and say so.
 
-**None of these tasks is implemented yet.** The `Status` line on each task is the
-source of truth in this file; the GitHub issue is the source of truth overall.
+The `Status` line on each task tracks its progress in this file; the GitHub issue
+is the source of truth overall.
 
 Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and
 pull-request workflow. Claim a task by commenting on its issue, then open one
@@ -126,7 +126,7 @@ A record repeated 40 times currently produces 39 separate issues that all say th
 
 ### [TASK-03] Add CSV delimiter option
 
-**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #3)
+**Status:** DONE (issue #3, merged in #29)
 **GitHub issue:** [#3](https://github.com/ismayilzeynal/tabulint-oss-az/issues/3)
 **Labels:** `enhancement`, `cli`, `data-format`
 
@@ -230,7 +230,7 @@ Legacy exports are often cp1252, latin-1, or UTF-8 with a byte-order mark. Those
 
 ### [TASK-05] Add JSON Lines / NDJSON support
 
-**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #5)
+**Status:** DONE (issue #5, merged in #30)
 **GitHub issue:** [#5](https://github.com/ismayilzeynal/tabulint-oss-az/issues/5)
 **Labels:** `enhancement`, `data-format`
 
@@ -647,7 +647,7 @@ In a CI pipeline or a shell loop over hundreds of files the full report is noise
 
 ### [TASK-13] Add machine-readable JSON report output
 
-**Status:** CLAIMED (in progress by @Aaqibhafeezkhan, see #13)
+**Status:** DONE (issue #13, merged in #31)
 **GitHub issue:** [#13](https://github.com/ismayilzeynal/tabulint-oss-az/issues/13)
 **Labels:** `enhancement`, `cli`
 
