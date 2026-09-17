@@ -1,6 +1,8 @@
+import json
+
 from tabulint.cli import EXIT_ERROR, EXIT_ISSUES, EXIT_OK, main
 from tabulint import check_file
-from tabulint.report import format_report
+from tabulint.report import format_report, format_report_json
 
 CSV = "name,age\nAda,36\nGrace,45\n"
 JSON = '[{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]'
@@ -160,13 +162,17 @@ def test_quiet_mode_with_output_writes_no_file_on_load_error(tmp_path, capsys):
 def test_semicolon_delimiter_via_cli(write, capsys):
     path = write("people.csv", "name;age\nAda;36\nGrace;45\n")
     assert main([path, "--delimiter", ";"]) == EXIT_OK
-    assert "records: 2" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "records: 2" in output
+    assert "    name  string\n    age   integer" in output
 
 
 def test_tab_delimiter_via_cli(write, capsys):
     path = write("people.csv", "name\tage\nAda\t36\nGrace\t45\n")
     assert main([path, "--delimiter", r"\t"]) == EXIT_OK
-    assert "records: 2" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "records: 2" in output
+    assert "    name  string\n    age   integer" in output
 
 
 def test_multi_character_delimiter_exits_two(write, capsys):
@@ -184,3 +190,74 @@ def test_empty_delimiter_exits_two(write, capsys):
 def test_delimiter_is_ignored_for_json_via_cli(write):
     path = write("people.json", JSON)
     assert main([path, "--delimiter", ";"]) == EXIT_OK
+
+def test_json_format_emits_valid_json_and_exit_one_for_issues(write, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+
+    assert main([path, "--format", "json"]) == EXIT_ISSUES
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    data = json.loads(captured.out)
+    assert set(data) == {
+        "path",
+        "row_count",
+        "profiles",
+        "issues",
+        "error_count",
+        "warning_count",
+        "ok",
+    }
+    assert len(data["issues"]) == 1
+    assert data["issues"][0]["code"] == "duplicate-record"
+    assert data["issues"][0]["severity"] == "warning"
+    assert data["issues"][0]["row"] == 2
+
+
+def test_json_format_clean_dataset_exits_zero(write, capsys):
+    path = write("people.csv", CSV)
+
+    assert main([path, "--format", "json"]) == EXIT_OK
+    data = json.loads(capsys.readouterr().out)
+    assert data["issues"] == []
+    assert data["error_count"] == 0
+    assert data["warning_count"] == 0
+    assert data["ok"] is True
+
+
+def test_json_format_preserves_all_issues(write, capsys):
+    path = write("large.csv", "name,age\n" + "Ada,36\n" * 61)
+
+    assert main([path, "--format", "json"]) == EXIT_ISSUES
+    data = json.loads(capsys.readouterr().out)
+    assert len(data["issues"]) == 60
+    assert data["issues"][-1]["code"] == "duplicate-record"
+
+
+def test_json_format_output_file_matches_stdout(write, tmp_path, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    output = tmp_path / "report.json"
+    report = check_file(path)
+    expected = format_report_json(report) + "\n"
+
+    assert main([path, "--format", "json", "--output", str(output)]) == EXIT_ISSUES
+    assert output.read_text(encoding="utf-8") == expected
+    assert capsys.readouterr().out == expected
+
+
+def test_quiet_json_format_keeps_stdout_empty(write, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+
+    assert main([path, "--quiet", "--format", "json"]) == EXIT_ISSUES
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+
+
+def test_quiet_json_format_still_writes_complete_report(write, tmp_path, capsys):
+    path = write("dupes.csv", "name,age\nAda,36\nAda,36\n")
+    output = tmp_path / "report.json"
+
+    assert main([path, "--quiet", "--format", "json", "--output", str(output)]) == EXIT_ISSUES
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert len(data["issues"]) == 1
+    assert capsys.readouterr().out == ""

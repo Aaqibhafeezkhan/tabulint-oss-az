@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--output` and `-o` CLI options for UTF-8 report file output.
 - Added `--quiet` and `-q` CLI options for summary-only stdout output.
 - Added configurable CSV delimiters through the Python API and `--delimiter` CLI option.
+- Added `--format {text,json}` and `format_report_json` for machine-readable JSON report output.
 
 ### Changed
 
@@ -33,9 +34,8 @@ Initial release.
 - Empty-dataset detection.
 - Plain-text terminal report.
 - `tabulint` CLI with exit codes `0` (clean), `1` (issues found), `2` (error).
-- Python API: `check_file`, `check_records`, `format_report`,
-  `build_numeric_rules`, `load_csv`, `load_json`, `load_dataset`, `analyze`,
-  `profile_fields`, `infer_type`.
+- Python API: `check_file`, `check_records`, `format_report`, `build_numeric_rules`,
+  `load_csv`, `load_json`, `load_dataset`, `analyze`, `profile_fields`, `infer_type`.
 
 [Unreleased]: https://github.com/ismayilzeynal/tabulint-oss-az/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ismayilzeynal/tabulint-oss-az/releases/tag/v0.1.0

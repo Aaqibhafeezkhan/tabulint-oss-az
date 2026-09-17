@@ -1,4 +1,6 @@
-"""Rendering a Report as plain text for the terminal."""
+"""Rendering Reports as text and JSON."""
+
+import json
 
 from .models import Report
 
@@ -34,3 +36,33 @@ def format_report(report: Report) -> str:
 
     lines.append(f"  summary: {report.error_count} error(s), {report.warning_count} warning(s)")
     return "\n".join(lines)
+
+
+def format_report_json(report: Report) -> str:
+    """Render a report as machine-readable JSON."""
+    document = {
+        "path": report.path,
+        "row_count": report.row_count,
+        "profiles": [
+            {
+                "name": profile.name,
+                "dominant_type": profile.dominant_type,
+                "missing_count": profile.missing_count,
+            }
+            for profile in report.profiles
+        ],
+        "issues": [
+            {
+                "code": issue.code,
+                "severity": issue.severity,
+                "message": issue.message,
+                "field": issue.field_name,
+                "row": issue.row,
+            }
+            for issue in report.issues
+        ],
+        "error_count": report.error_count,
+        "warning_count": report.warning_count,
+        "ok": report.ok,
+    }
+    return json.dumps(document, indent=2)

@@ -51,6 +51,9 @@ tabulint data/people.csv
 # Check a JSON array of objects
 tabulint data/people.json
 
+# Emit a machine-readable JSON report
+tabulint data/people.csv --format json
+
 # Require a numeric field to stay within a range
 tabulint data/people.csv --min age=0 --max age=120
 
@@ -61,7 +64,7 @@ tabulint data/scores.csv --min score=0 --max score=100 --max attempts=3
 tabulint data/people.csv --delimiter ";"
 
 # Use the readable tab spelling for a tab-delimited CSV
-tabulint data/people.csv --delimiter "\\t"
+tabulint data/people.csv --delimiter "\t"
 
 # Write the report to a UTF-8 file while also printing it to stdout
 tabulint data/people.csv --output report.txt
@@ -72,6 +75,9 @@ tabulint data/people.csv -o report.txt
 # Suppress normal output and report only a summary when issues are found
 tabulint data/people.csv --quiet
 
+# JSON output stays clean when quiet mode is enabled
+tabulint data/people.csv --quiet --format json
+
 # The short quiet flag is equivalent
 tabulint data/people.csv -q
 
@@ -80,24 +86,60 @@ tabulint --version
 ```
 
 The `--delimiter` option applies to CSV input and accepts exactly one character.
-Use `\\t` for a tab. The option is ignored for JSON input. An empty or
+Use `\t` for a tab. The option is ignored for JSON input. An empty or
 multi-character delimiter is rejected with exit code 2.
+
+The `--format` option chooses the report representation: `text` is the default,
+and `json` emits a pretty-printed JSON document. JSON stdout contains only the
+JSON document, with no summary line mixed in. With `--quiet --format json`,
+stdout is empty when issues are found; the exit code and any `--output` file
+still carry the result.
+
+The JSON report has a stable top-level shape containing the input path, record
+count, field profiles, every issue, error/warning counts, and the `ok` flag. Each
+profile contains `name`, `dominant_type`, and `missing_count`. Each issue
+contains `code`, `severity`, `message`, `field`, and `row`.
+
+For example:
+
+```json
+{
+  "path": "people.csv",
+  "row_count": 2,
+  "profiles": [
+    {"name": "age", "dominant_type": "integer", "missing_count": 0}
+  ],
+  "issues": [
+    {
+      "code": "above-maximum",
+      "severity": "error",
+      "message": "field 'age' value 200 is above maximum 120",
+      "field": "age",
+      "row": 2
+    }
+  ],
+  "error_count": 1,
+  "warning_count": 0,
+  "ok": false
+}
+```
 
 The `--output` / `-o` option overwrites an existing file rather than appending,
 and does not create missing parent directories. Reports are written with
 explicit UTF-8 encoding and Unix-style `\n` line endings. The report is also
 printed to stdout. A write failure is reported on stderr and exits with code 2.
 
-The `--quiet` / `-q` option controls stdout only. When issues are found, it
-prints one summary line containing the input path and error/warning counts;
-when the dataset is clean, it prints nothing. When `--quiet` and `--output`
-are used together, the complete report is still written to the output file
-while only the quiet summary is printed to stdout.
+The `--quiet` / `-q` option controls stdout only. When issues are found with the
+default text format, it prints one summary line containing the input path and
+error/warning counts; when the dataset is clean, it prints nothing. When
+`--quiet` and `--output` are used together, the complete report is still written
+to the output file while only the quiet summary is printed to stdout. With JSON
+format, quiet mode leaves stdout empty so the JSON contract remains intact.
 
 ## Python API
 
 ```python
-from tabulint import build_numeric_rules, check_file, format_report
+from tabulint import build_numeric_rules, check_file, format_report, format_report_json
 
 rules = build_numeric_rules(minimums=["age=0"], maximums=["age=120"])
 report = check_file("people.csv", rules)
@@ -107,6 +149,7 @@ for issue in report.issues:
     print(issue.row, issue.code, issue.message)
 
 print(format_report(report))
+print(format_report_json(report))
 ```
 
 Working with records you already have in memory:
@@ -119,8 +162,8 @@ assert not report.ok
 ```
 
 Main public names: `check_file`, `check_records`, `format_report`,
-`build_numeric_rules`, `check_numeric_rules`, `load_csv`, `load_json`,
-`load_dataset`, `analyze`, `profile_fields`, `infer_type`, and the
+`format_report_json`, `build_numeric_rules`, `check_numeric_rules`, `load_csv`,
+`load_json`, `load_dataset`, `analyze`, `profile_fields`, `infer_type`, and the
 `Report`, `Issue`, `FieldProfile`, `NumericRule`, `TabulintError` types.
 
 ## Supported formats
@@ -158,8 +201,9 @@ whitespace: `true`, `false`, `yes`, `no`, `y`, `n`, `t`, and `f`.
 | `1` | Dataset loaded and at least one issue was found |
 | `2` | The dataset could not be loaded, the arguments were invalid, or the report could not be written |
 
-A successful report write does not change the data-quality exit code. For
-example, a dataset with issues still exits with code 1 when `--output` is used.
+Exit codes are identical for text and JSON output. A successful report write
+does not change the data-quality exit code. For example, a dataset with issues
+still exits with code 1 when `--output` is used.
 
 This makes `tabulint` usable as a CI gate:
 
@@ -183,6 +227,6 @@ These are the known boundaries of the current release, not bugs:
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.
-- Report output is plain text only; machine-readable formats are not available yet.
+- JSON output is intended for machine consumption; CSV, SARIF, JUnit, and file-specific report formats are not available yet.
 - Type inference is deliberately simple and has no date/time or currency
   awareness.
