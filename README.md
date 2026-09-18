@@ -91,6 +91,8 @@ tabulint data/people.csv -q
 tabulint --version
 ```
 
+Bounds must be finite numbers. Values such as `nan`, `inf`, and `-inf` are rejected.
+
 The `--delimiter` option applies to CSV input and accepts exactly one character.
 Use `\t` for a tab. The option is ignored for JSON input. An empty or
 multi-character delimiter is rejected with exit code 2.

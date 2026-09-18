@@ -79,6 +79,13 @@ def test_invalid_bound_exits_two(write, capsys):
     assert "invalid bound" in capsys.readouterr().err
 
 
+def test_non_finite_bound_exits_two(write, capsys):
+    assert main([write("ages.csv", CSV), "--min", "age=nan"]) == EXIT_ERROR
+    err = capsys.readouterr().err
+    assert "invalid bound" in err
+    assert "finite" in err
+
+
 def test_unsupported_extension_exits_two(write):
     assert main([write("data.txt", "hello")]) == EXIT_ERROR
 

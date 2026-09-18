@@ -1,6 +1,7 @@
 """User-supplied validation rules."""
 
 from dataclasses import dataclass
+import math
 
 from .analyzer import is_missing
 from .models import Issue, Record, TabulintError
@@ -21,9 +22,14 @@ def parse_bound(text: str) -> tuple[str, float]:
     if not separator or not name.strip():
         raise TabulintError(f"invalid bound '{text}' (expected field=number)")
     try:
-        return name.strip(), float(raw)
+        value = float(raw)
     except ValueError as exc:
         raise TabulintError(f"invalid bound '{text}' ('{raw}' is not a number)") from exc
+    if not math.isfinite(value):
+        raise TabulintError(
+            f"invalid bound '{text}' ('{raw.strip()}' is not a finite number)"
+        )
+    return name.strip(), value
 
 
 def build_numeric_rules(

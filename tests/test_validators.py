@@ -45,3 +45,22 @@ def test_non_numeric_value_is_reported():
 def test_missing_values_and_absent_fields_are_skipped():
     records = [{"age": ""}, {"name": "Ada"}]
     assert check_numeric_rules(records, build_numeric_rules(["age=0"], None)) == []
+
+
+@pytest.mark.parametrize("bound", ["age=nan", "age=inf", "age=-inf", "age=+inf", "age=NaN"])
+def test_non_finite_minimum_bound_raises(bound):
+    with pytest.raises(TabulintError, match="not a finite number"):
+        build_numeric_rules([bound], None)
+
+
+@pytest.mark.parametrize("bound", ["score=nan", "score=inf", "score=-inf"])
+def test_non_finite_maximum_bound_raises(bound):
+    with pytest.raises(TabulintError, match="not a finite number"):
+        build_numeric_rules(None, [bound])
+
+
+def test_finite_negative_and_decimal_bounds_still_work():
+    rules = build_numeric_rules(["temp=-12.5"], ["temp=40"])
+    assert rules == [NumericRule("temp", -12.5, 40.0)]
+    records = [{"temp": "-12.5"}, {"temp": "0"}, {"temp": "40"}]
+    assert check_numeric_rules(records, rules) == []
