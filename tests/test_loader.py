@@ -133,3 +133,52 @@ def test_empty_delimiter_raises(write):
 def test_delimiter_is_ignored_for_json(write):
     rows = load_dataset(write("people.json", VALID_JSON), delimiter=";")
     assert rows == [{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]
+
+
+
+def test_cp1252_csv_loads_with_selected_encoding(write):
+    path = write("people.csv", "name,city\nZoë,München\n", encoding="cp1252")
+    assert load_csv(path, encoding="cp1252") == [{"name": "Zoë", "city": "München"}]
+
+
+def test_selected_encoding_loads_json(write):
+    path = write("people.json", '[{"name": "Zoë"}]', encoding="cp1252")
+    assert load_json(path, encoding="cp1252") == [{"name": "Zoë"}]
+
+
+def test_selected_encoding_loads_jsonl_and_ndjson(write):
+    content = '{"name": "Zoë"}\n'
+    jsonl = write("people.jsonl", content, encoding="cp1252")
+    ndjson = write("people.ndjson", content, encoding="cp1252")
+    expected = [{"name": "Zoë"}]
+    assert load_jsonl(jsonl, encoding="cp1252") == expected
+    assert load_dataset(ndjson, encoding="cp1252") == expected
+
+
+def test_encoding_is_threaded_through_load_dataset(write):
+    path = write("people.csv", "name\nZoë\n", encoding="cp1252")
+    assert load_dataset(path, encoding="cp1252") == [{"name": "Zoë"}]
+
+
+def test_unknown_encoding_raises_tabulint_error(write):
+    with pytest.raises(TabulintError, match="unknown encoding 'not-a-real-encoding'"):
+        load_csv(write("people.csv", VALID_CSV), encoding="not-a-real-encoding")
+
+
+def test_decode_failure_names_file_and_encoding(tmp_path):
+    path = tmp_path / "people.csv"
+    path.write_bytes("name\nMünchen\n".encode("cp1252"))
+    with pytest.raises(TabulintError, match=r"people\.csv.*encoding 'utf-8'"):
+        load_csv(path)
+
+
+def test_utf8_bom_is_stripped_with_utf8_sig(write):
+    path = write("people.csv", "\ufeffname,age\nAda,36\n", encoding="utf-8")
+    assert load_csv(path, encoding="utf-8-sig") == [{"name": "Ada", "age": "36"}]
+
+
+def test_utf8_bom_is_stripped_for_json_and_jsonl(write):
+    json_path = write("people.json", '\ufeff[{"name": "Ada"}]', encoding="utf-8")
+    jsonl_path = write("people.jsonl", '\ufeff{"name": "Ada"}\n', encoding="utf-8")
+    assert load_json(json_path, encoding="utf-8-sig") == [{"name": "Ada"}]
+    assert load_jsonl(jsonl_path, encoding="utf-8-sig") == [{"name": "Ada"}]
