@@ -87,16 +87,45 @@ def test_absent_field_is_an_error():
     assert issues[0].row == 2
 
 
-def test_duplicate_records_are_reported():
+def test_duplicate_records_are_grouped_into_one_issue():
     records = [{"a": "1"}, {"a": "2"}, {"a": "1"}, {"a": "1"}]
     issues = check_duplicates(records)
-    assert [issue.row for issue in issues] == [3, 4]
-    assert all(issue.code == "duplicate-record" for issue in issues)
-    assert "row 1" in issues[0].message
+    assert len(issues) == 1
+    assert issues[0].code == "duplicate-record"
+    assert issues[0].row == 3
+    assert issues[0].message == "record from row 1 is repeated at rows 3, 4"
 
 
 def test_distinct_records_are_not_duplicates():
     assert check_duplicates([{"a": "1"}, {"a": "2"}]) == []
+
+
+def test_two_distinct_duplicate_groups_produce_two_issues():
+    records = [
+        {"a": "1"},
+        {"a": "2"},
+        {"a": "1"},
+        {"a": "2"},
+    ]
+    issues = check_duplicates(records)
+    assert [issue.row for issue in issues] == [3, 4]
+    assert issues[0].message == "record from row 1 is repeated at rows 3"
+    assert issues[1].message == "record from row 2 is repeated at rows 4"
+
+
+def test_long_duplicate_group_truncates_row_list():
+    records = [{"a": "1"}] * 13
+    issues = check_duplicates(records)
+    assert len(issues) == 1
+    expected_rows = ", ".join(str(row) for row in range(2, 12))
+    assert issues[0].message == (
+        f"record from row 1 is repeated at rows {expected_rows}, and 2 more"
+    )
+
+
+def test_dataset_with_all_distinct_records_has_no_duplicate_issues():
+    records = [{"a": "1"}, {"a": "2"}, {"a": "3"}]
+    assert check_duplicates(records) == []
 
 
 def test_inconsistent_types_are_reported():

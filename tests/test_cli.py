@@ -262,12 +262,13 @@ def test_json_format_clean_dataset_exits_zero(write, capsys):
 
 
 def test_json_format_preserves_all_issues(write, capsys):
-    path = write("large.csv", "name,age\n" + "Ada,36\n" * 61)
+    rows = "".join(f"Ada,{i}\nAda,{i}\n" for i in range(61))
+    path = write("large.csv", "name,age\n" + rows)
 
     assert main([path, "--format", "json"]) == EXIT_ISSUES
     data = json.loads(capsys.readouterr().out)
-    assert len(data["issues"]) == 60
-    assert data["issues"][-1]["code"] == "duplicate-record"
+    assert len(data["issues"]) == 61
+    assert all(issue["code"] == "duplicate-record" for issue in data["issues"])
 
 
 def test_json_format_output_file_matches_stdout(write, tmp_path, capsys):

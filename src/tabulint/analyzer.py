@@ -111,25 +111,45 @@ def _record_key(record: Record, names: list[str]) -> tuple[str, ...]:
     return tuple(repr(record.get(name)) for name in names)
 
 
+DUPLICATE_ROWS_LIMIT = 10
+
+
+def _format_duplicate_rows(rows: list[int]) -> str:
+    shown = rows[:DUPLICATE_ROWS_LIMIT]
+    text = ", ".join(str(row) for row in shown)
+    remaining = len(rows) - len(shown)
+    if remaining > 0:
+        text += f", and {remaining} more"
+    return text
+
+
 def check_duplicates(records: list[Record]) -> list[Issue]:
-    """Report records identical to an earlier record."""
+    """Report each group of identical records once, listing every occurrence."""
     names = field_names(records)
-    seen: dict[tuple[str, ...], int] = {}
-    issues = []
+    first_rows: dict[tuple[str, ...], int] = {}
+    duplicate_rows: dict[tuple[str, ...], list[int]] = {}
     for row, record in enumerate(records, start=1):
         key = _record_key(record, names)
-        first = seen.get(key)
+        first = first_rows.get(key)
         if first is None:
-            seen[key] = row
+            first_rows[key] = row
         else:
-            issues.append(
-                Issue(
-                    code="duplicate-record",
-                    severity="warning",
-                    message=f"record is a duplicate of row {first}",
-                    row=row,
-                )
+            duplicate_rows.setdefault(key, []).append(row)
+
+    issues = []
+    for key, rows in duplicate_rows.items():
+        first = first_rows[key]
+        issues.append(
+            Issue(
+                code="duplicate-record",
+                severity="warning",
+                message=(
+                    f"record from row {first} is repeated at rows "
+                    f"{_format_duplicate_rows(rows)}"
+                ),
+                row=rows[0],
             )
+        )
     return issues
 
 
