@@ -299,3 +299,44 @@ def test_quiet_json_format_still_writes_complete_report(write, tmp_path, capsys)
     data = json.loads(output.read_text(encoding="utf-8"))
     assert len(data["issues"]) == 1
     assert capsys.readouterr().out == ""
+
+
+
+def test_encoding_via_cli_for_cp1252_csv(write, capsys):
+    path = write("people.csv", "name,city\nZoë,München\n", encoding="cp1252")
+    assert main([path, "--encoding", "cp1252"]) == EXIT_OK
+    assert "records: 1" in capsys.readouterr().out
+
+
+def test_encoding_via_cli_for_jsonl_and_ndjson(write):
+    content = '{"name": "Zoë"}\n'
+    jsonl = write("people.jsonl", content, encoding="cp1252")
+    ndjson = write("people.ndjson", content, encoding="cp1252")
+    assert main([jsonl, "--encoding", "cp1252"]) == EXIT_OK
+    assert main([ndjson, "--encoding", "cp1252"]) == EXIT_OK
+
+
+def test_unknown_encoding_exits_two(write, capsys):
+    path = write("people.csv", CSV)
+    assert main([path, "--encoding", "not-a-real-encoding"]) == EXIT_ERROR
+    assert "unknown encoding 'not-a-real-encoding'" in capsys.readouterr().err
+
+
+def test_decode_failure_via_cli_names_file_and_encoding(tmp_path, capsys):
+    path = tmp_path / "people.csv"
+    path.write_bytes("name\nMünchen\n".encode("cp1252"))
+    assert main([str(path), "--encoding", "utf-8"]) == EXIT_ERROR
+    err = capsys.readouterr().err
+    assert "people.csv" in err
+    assert "encoding 'utf-8'" in err
+
+
+def test_utf8_bom_via_cli(write, capsys):
+    path = write("people.csv", "\ufeffname,age\nAda,36\n", encoding="utf-8")
+    assert main([path, "--encoding", "utf-8-sig"]) == EXIT_OK
+    assert "records: 1" in capsys.readouterr().out
+
+
+def test_default_encoding_remains_utf8(write):
+    path = write("people.csv", CSV, encoding="utf-8")
+    assert main([path]) == EXIT_OK

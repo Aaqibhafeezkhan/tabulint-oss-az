@@ -65,7 +65,8 @@ def check_file(
     rules: list[NumericRule] | None = None,
     *,
     delimiter: str = ",",
+    encoding: str = "utf-8",
 ) -> Report:
-    """Load a CSV or JSON file and run all checks against it."""
-    records = load_dataset(path, delimiter=delimiter)
+    """Load a CSV, JSON, or JSON Lines file and run all checks against it."""
+    records = load_dataset(path, delimiter=delimiter, encoding=encoding)
     return check_records(records, rules, path=str(path))

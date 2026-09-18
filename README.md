@@ -98,6 +98,14 @@ Use `\t` for a tab. The option is ignored for JSON input. An empty or
 multi-character delimiter is rejected with exit code 2.
 Malformed CSV quoting, including unterminated quoted fields, also exits with code 2.
 
+The `--encoding` option applies to CSV, JSON, JSONL, and NDJSON input and
+defaults to `utf-8`. Encoding names are resolved by Python's standard codec
+registry, so aliases such as `latin-1` are accepted. An unknown encoding name
+exits with code 2 and a readable error. Decode failures name both the input file
+and the encoding that was attempted. Use `utf-8-sig` when reading UTF-8 files
+with a byte-order mark; this strips the BOM before parsing so it does not become
+part of the first field name.
+
 The `--format` option chooses the report representation: `text` is the default,
 and `json` emits a pretty-printed JSON document. JSON stdout contains only the
 JSON document, with no summary line mixed in. With `--quiet --format json`,
@@ -161,6 +169,9 @@ print(format_report(report))
 print(format_report_json(report))
 ```
 
+For a non-UTF-8 file, pass an encoding to the Python API, for example
+`check_file("people.csv", rules, encoding="cp1252")`.
+
 Working with records you already have in memory:
 
 ```python
@@ -180,10 +191,10 @@ Main public names: `check_file`, `check_records`, `format_report`,
 
 | Format | Notes |
 | --- | --- |
-| `.csv` | UTF-8, configurable delimiter, first row is the header |
-| `.json` | A single JSON array of objects; the CSV delimiter option is ignored |
-| `.jsonl` | One JSON object per line; blank lines are skipped |
-| `.ndjson` | Alias for `.jsonl` |
+| `.csv` | UTF-8 by default, configurable encoding and delimiter, first row is the header |
+| `.json` | A single JSON array of objects; configurable encoding; the CSV delimiter option is ignored |
+| `.jsonl` | One JSON object per line; configurable encoding; blank lines are skipped |
+| `.ndjson` | Alias for `.jsonl` with the same encoding behavior |
 
 The reader is chosen from the file extension.
 
@@ -242,7 +253,7 @@ issues that have a task ID.
 
 These are the known boundaries of the current release, not bugs:
 
-- CSV is read as UTF-8 with a configurable delimiter; automatic delimiter sniffing is not available.
+- CSV is read as UTF-8 by default with configurable encoding and delimiter; automatic delimiter sniffing is not available.
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
 - Only numeric `min`/`max` validation is available; no string-length,
   allowed-values, or required-field rules yet.

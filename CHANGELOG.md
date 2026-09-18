@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added configurable CSV delimiters through the Python API and `--delimiter` CLI option.
 - Added `--format {text,json}` and `format_report_json` for machine-readable JSON report output.
 - Added JSON Lines / NDJSON loading through `.jsonl` and `.ndjson` file extensions.
+- Added configurable input encoding through the Python API and `--encoding` CLI option for CSV, JSON, JSONL, and NDJSON input.
 
 ### Changed
 
