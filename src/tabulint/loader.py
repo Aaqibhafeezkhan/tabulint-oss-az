@@ -14,7 +14,7 @@ def load_csv(path: str | Path, *, delimiter: str = ",") -> list[Record]:
         raise TabulintError(f"{path}: CSV delimiter must be exactly one character")
     try:
         with path.open("r", newline="", encoding="utf-8") as handle:
-            reader = csv.DictReader(handle, delimiter=delimiter)
+            reader = csv.DictReader(handle, delimiter=delimiter, strict=True)
             if reader.fieldnames is None:
                 return []
             if any(name is None or name == "" for name in reader.fieldnames):

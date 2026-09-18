@@ -94,6 +94,7 @@ tabulint --version
 The `--delimiter` option applies to CSV input and accepts exactly one character.
 Use `\t` for a tab. The option is ignored for JSON input. An empty or
 multi-character delimiter is rejected with exit code 2.
+Malformed CSV quoting, including unterminated quoted fields, also exits with code 2.
 
 The `--format` option chooses the report representation: `text` is the default,
 and `json` emits a pretty-printed JSON document. JSON stdout contains only the

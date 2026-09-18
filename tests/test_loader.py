@@ -81,6 +81,25 @@ def test_csv_with_empty_header_name_raises(write):
         load_csv(write("blank.csv", "name,\nAda,36\n"))
 
 
+def test_csv_with_unterminated_quote_raises(write):
+    with pytest.raises(TabulintError, match="malformed CSV"):
+        load_csv(write("unterminated.csv", 'name,age\nAda,"36\n'))
+
+
+def test_csv_with_valid_multiline_field(tmp_path):
+    content = 'name,bio\nAda,"First computer\nprogrammer"\n'
+    path = tmp_path / "multiline.csv"
+    path.write_bytes(content.encode("utf-8"))
+    rows = load_csv(path)
+    assert rows == [{"name": "Ada", "bio": "First computer\nprogrammer"}]
+
+
+def test_csv_with_escaped_quotes_and_commas(write):
+    content = 'name,note\nAda,"Hello, ""World"""\n'
+    rows = load_csv(write("escaped.csv", content))
+    assert rows == [{"name": "Ada", "note": 'Hello, "World"'}]
+
+
 def test_missing_file_raises(write, tmp_path):
     with pytest.raises(TabulintError, match="file not found"):
         load_dataset(str(tmp_path / "nope.csv"))

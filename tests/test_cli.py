@@ -48,6 +48,14 @@ def test_malformed_json_exits_two(write, capsys):
     assert "error:" in capsys.readouterr().err
 
 
+def test_csv_with_unterminated_quote_exits_two(write, capsys):
+    path = write("unterminated.csv", 'name,age\nAda,"36\n')
+    assert main([path]) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert "malformed CSV" in captured.err
+    assert "unterminated.csv" in captured.err
+
+
 def test_malformed_jsonl_exits_two(write, capsys):
     path = write("bad.jsonl", '{"name": "Ada"}\n\n{oops}\n')
     assert main([path]) == EXIT_ERROR
