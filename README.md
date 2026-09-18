@@ -159,7 +159,7 @@ format, quiet mode leaves stdout empty so the JSON contract remains intact.
 from tabulint import build_numeric_rules, check_file, format_report, format_report_json
 
 rules = build_numeric_rules(minimums=["age=0"], maximums=["age=120"])
-report = check_file("people.csv", rules, encoding="cp1252")
+report = check_file("people.csv", rules)
 
 print(report.row_count, report.error_count, report.warning_count)
 for issue in report.issues:
@@ -168,6 +168,9 @@ for issue in report.issues:
 print(format_report(report))
 print(format_report_json(report))
 ```
+
+For a non-UTF-8 file, pass an encoding to the Python API, for example
+`check_file("people.csv", rules, encoding="cp1252")`.
 
 Working with records you already have in memory:
 

@@ -70,7 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and return an exit code."""
     args = build_parser().parse_args(argv)
-    delimiter = "	" if args.delimiter == r"\t" else args.delimiter
+    delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
         report = check_file(args.path, rules, delimiter=delimiter, encoding=args.encoding)
