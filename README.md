@@ -204,12 +204,16 @@ The reader is chosen from the file extension.
 | --- | --- | --- |
 | `missing-value` | warning | A field is present but empty or null |
 | `missing-field` | error | A record does not contain a field other records have |
-| `duplicate-record` | warning | A record is identical to an earlier record |
+| `duplicate-record` | warning | A group of identical records, reported once |
 | `type-mismatch` | error | A value does not match the field's dominant inferred type |
 | `below-minimum` | error | A value is below a `--min` bound |
 | `above-maximum` | error | A value is above an `--max` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
 | `empty-dataset` | warning | The dataset contains no records |
+
+Each `duplicate-record` warning names the first occurrence and up to 10
+repeated row numbers. Larger groups end with an `and N more` count. The issue's
+row number is the first repeated row.
 
 Inferred types are `integer`, `float`, `boolean`, `string`, and `null`. Strings
 are parsed, so the CSV text `12` and the JSON number `12` both infer as
