@@ -15,7 +15,7 @@ EXIT_ISSUES = 1
 EXIT_ERROR = 2
 
 
-def _print_console(text: str, *, stream: TextIO, end: str = "\\n") -> None:
+def _print_console(text: str, *, stream: TextIO, end: str = "\n") -> None:
     """Keep reports and errors readable on terminals with limited encodings."""
     encoding = stream.encoding or "utf-8"
     printable = text.encode(encoding, errors="backslashreplace").decode(encoding)
@@ -120,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_ERROR
 
     formatter = format_report_json if args.format == "json" else format_report
-    rendered = formatter(report) + "\\n"
+    rendered = formatter(report) + "\n"
 
     if args.output is not None:
         try:
@@ -130,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
                 output_path.exists() and output_path.samefile(input_path)
             ):
                 raise ValueError("output path refers to the input dataset")
-            with open(args.output, "w", encoding="utf-8", newline="\\n") as output_file:
+            with open(args.output, "w", encoding="utf-8", newline="\n") as output_file:
                 output_file.write(rendered)
         except (OSError, ValueError, RuntimeError) as exc:
             _print_console(
