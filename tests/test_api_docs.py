@@ -35,7 +35,11 @@ def test_documented_issue_codes_and_severities_match_emitted_checks():
         {"name": "Grace", "age": 200},
     ]
     rules = tabulint.build_numeric_rules(["age=0"], ["age=120"])
-    reports = [tabulint.check_records(records, rules, required_fields=["name"]), tabulint.check_records([])]
+    length_rules = tabulint.build_length_rules(["name=4"], ["name=4"])
+    reports = [
+        tabulint.check_records(records, rules, length_rules=length_rules, required_fields=["name"]),
+        tabulint.check_records([]),
+    ]
     emitted = {(issue.code, issue.severity) for report in reports for issue in report.issues}
 
     assert _documented_issue_pairs(API_TEXT) == emitted
