@@ -11,7 +11,7 @@ when making programmatic decisions.
 
 Signatures use `Path` from `pathlib`. A `*` marks keyword-only arguments.
 `<factory>` means a fresh empty list or dictionary is created for each instance.
-Annotations describe supported inputs; only `NumericRule` validates its bounds
+Annotations describe supported inputs; `NumericRule` and `LengthRule` validate their bounds
 at runtime. Unless an entry names a `TabulintError`, it has no intentional
 domain-error exception for supported inputs. Ordinary Python exceptions from
 invalid argument types, custom objects, or resource limits can still propagate.
@@ -22,7 +22,8 @@ invalid argument types, custom objects, or resource limits can still propagate.
 
 ```text
 check_file(path: str | Path, rules: list[NumericRule] | None = None,
-           *, delimiter: str = ",", encoding: str = "utf-8",
+           length_rules: list[LengthRule] | None = None, *,
+           delimiter: str = ",", encoding: str = "utf-8",
            required_fields: list[str] | None = None) -> Report
 ```
 
@@ -31,23 +32,25 @@ Loads a file with `load_dataset`, then returns the same complete report as
 CSV; `encoding` applies to every supported format. The whole dataset is loaded
 into memory. Raises `TabulintError` for the loading failures described below.
 Data-quality findings become issues in the returned report, not exceptions.
-`required_fields` applies the optional presence checks described below.
+`length_rules` applies optional character-length bounds; `required_fields` applies the optional presence checks described below.
 
 ### `check_records`
 
 ```text
 check_records(records: list[Record], rules: list[NumericRule] | None = None,
               path: str = "<records>",
-              *, required_fields: list[str] | None = None) -> Report
+              *, length_rules: list[LengthRule] | None = None,
+              required_fields: list[str] | None = None) -> Report
 ```
 
-Returns structural issues, optional numeric-rule and required-field issues,
+Returns structural issues, optional numeric-rule, length-rule, and required-field issues,
 field profiles, and record counts. `path` is a display label; no file is opened. Fields are collected
 in first-seen order across all records. An empty list produces one
 `empty-dataset` warning. This is also the result for a header-only CSV passed to
 `check_file`; headers are not retained when there are no records. Cyclic
 dictionaries or lists raise `TabulintError` during duplicate detection. Supply
-valid `NumericRule` objects, preferably from `build_numeric_rules`.
+valid `NumericRule` objects, preferably from `build_numeric_rules`, and optional
+`LengthRule` objects, preferably from `build_length_rules`.
 
 `required_fields` defaults to `None` (no required-field checks); an empty list
 also leaves behavior unchanged. Names follow `check_required_fields` semantics.
@@ -198,6 +201,42 @@ Returns a frozen data class with these fields:
 
 The constructor raises `TabulintError` for bounds that are not integers or finite
 floats (including booleans), or a minimum greater than its maximum.
+
+### `LengthRule`
+
+```text
+LengthRule(field_name: str, minimum: int | None = None,
+           maximum: int | None = None) -> LengthRule
+```
+
+Returns a frozen data class describing inclusive minimum and/or maximum character
+lengths for a field. Bounds must be non-negative integers, and the minimum cannot
+exceed the maximum. Invalid bounds raise `TabulintError` when created through
+`build_length_rules`; the direct data-class constructor stores its supplied values.
+
+### `build_length_rules`
+
+```text
+build_length_rules(minimums: list[str] | None = None,
+                   maximums: list[str] | None = None) -> list[LengthRule]
+```
+
+Parses repeatable `field=integer` bounds, strips field names, and combines each
+field's minimum and maximum into one rule. The last bound for a repeated field
+wins. Rules follow the minimum fields' first-seen order, then maximum-only fields.
+Negative, non-integer, missing, or inverted bounds raise `TabulintError`.
+Omitting both lists returns an empty list.
+
+### `check_length_rules`
+
+```text
+check_length_rules(records: list[Record], rules: list[LengthRule]) -> list[Issue]
+```
+
+Checks `len(str(value))` in rule order, then record order. Missing fields and
+values considered missing by `is_missing` are skipped. Violations produce
+`below-min-length` or `above-max-length` errors with the field and one-based
+record row. No input records or rules are modified.
 
 ### `build_numeric_rules`
 
@@ -396,7 +435,7 @@ required-field rules and the empty-input check in `check_records`. They match th
 | `duplicate-record` | warning | A repeated-record group, reported once. |
 | `type-mismatch` | error | A nonmissing value differs from the dominant inferred type. |
 | `below-minimum` | error | A numeric value is below an inclusive minimum. |
-| `above-maximum` | error | A numeric value is above an inclusive maximum. |
+| `above-maximum` | error | A numeric value is above an inclusive maximum. |\n| `below-min-length` | error | A stringified value is shorter than its minimum character length. |\n| `above-max-length` | error | A stringified value is longer than its maximum character length. |
 | `not-numeric` | error | A value checked by a numeric rule cannot be treated as numeric. |
 | `empty-dataset` | warning | No records were loaded or supplied. |
 
