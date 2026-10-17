@@ -80,7 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--delimiter",
         metavar="CHAR",
         default=",",
-        help="CSV delimiter character; use \\\\t for a tab",
+        help="CSV delimiter character; use \\t for a tab",
     )
     parser.add_argument(
         "--encoding",
@@ -107,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and return an exit code."""
     args = build_parser().parse_args(argv)
-    delimiter = "\\t" if args.delimiter == r"\\t" else args.delimiter
+    delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
         length_rules = build_length_rules(args.minimum_lengths, args.maximum_lengths)
