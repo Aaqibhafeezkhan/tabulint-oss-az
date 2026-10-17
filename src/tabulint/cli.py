@@ -1,4 +1,4 @@
-"""Command-line interface for tabulint."""
+""""Command-line interface for tabulint."""
 
 import argparse
 import sys
@@ -15,7 +15,7 @@ EXIT_ISSUES = 1
 EXIT_ERROR = 2
 
 
-def _print_console(text: str, *, stream: TextIO, end: str = "\n") -> None:
+def _print_console(text: str, *, stream: TextIO, end: str = "\\n") -> None:
     """Keep reports and errors readable on terminals with limited encodings."""
     encoding = stream.encoding or "utf-8"
     printable = text.encode(encoding, errors="backslashreplace").decode(encoding)
@@ -80,7 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--delimiter",
         metavar="CHAR",
         default=",",
-        help="CSV delimiter character; use \\t for a tab",
+        help="CSV delimiter character; use \\\\t for a tab",
     )
     parser.add_argument(
         "--encoding",
@@ -107,19 +107,20 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and return an exit code."""
     args = build_parser().parse_args(argv)
-    delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
+    delimiter = "\\t" if args.delimiter == r"\\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
+        length_rules = build_length_rules(args.minimum_lengths, args.maximum_lengths)
         report = check_file(
-            args.path, rules, delimiter=delimiter, encoding=args.encoding,
-            required_fields=args.required,
+            args.path, rules, length_rules=length_rules, delimiter=delimiter,
+            encoding=args.encoding, required_fields=args.required,
         )
     except TabulintError as exc:
         _print_console(f"tabulint: error: {exc}", stream=sys.stderr)
         return EXIT_ERROR
 
     formatter = format_report_json if args.format == "json" else format_report
-    rendered = formatter(report) + "\n"
+    rendered = formatter(report) + "\\n"
 
     if args.output is not None:
         try:
@@ -129,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
                 output_path.exists() and output_path.samefile(input_path)
             ):
                 raise ValueError("output path refers to the input dataset")
-            with open(args.output, "w", encoding="utf-8", newline="\n") as output_file:
+            with open(args.output, "w", encoding="utf-8", newline="\\n") as output_file:
                 output_file.write(rendered)
         except (OSError, ValueError, RuntimeError) as exc:
             _print_console(
