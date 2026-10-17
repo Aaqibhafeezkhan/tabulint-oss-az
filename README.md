@@ -290,6 +290,8 @@ counts retain the original integer/float distinction.
 | `type-mismatch` | error | A value does not match the field's dominant inferred type |
 | `below-minimum` | error | A value is below a `--min` bound |
 | `above-maximum` | error | A value is above an `--max` bound |
+| `below-min-length` | error | A value is shorter than a `--min-length` bound |
+| `above-max-length` | error | A value is longer than a `--max-length` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
 | `empty-dataset` | warning | The dataset contains no records |
 

@@ -159,3 +159,70 @@ def check_numeric_rules(records: list[Record], rules: list[NumericRule]) -> list
                     )
                 )
     return issues
+
+
+@dataclass(frozen=True)
+class LengthRule:
+    """A minimum and/or maximum character length for one field."""
+
+    field_name: str
+    minimum: int | None = None
+    maximum: int | None = None
+
+
+def parse_length_bound(text: str) -> tuple[str, int]:
+    """Parse a non-negative integer field length bound."""
+    name, separator, raw = text.partition("=")
+    if not separator or not name.strip():
+        raise TabulintError(f"invalid length bound '{text}' (expected field=integer)")
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise TabulintError(f"invalid length bound '{text}' ('{raw}' is not an integer)") from exc
+    if value < 0:
+        raise TabulintError(f"invalid length bound '{text}' (length cannot be negative)")
+    return name.strip(), value
+
+
+def build_length_rules(
+    minimums: list[str] | None = None,
+    maximums: list[str] | None = None,
+) -> list[LengthRule]:
+    """Build one length rule per field from repeatable bounds."""
+    low = dict(parse_length_bound(item) for item in minimums or [])
+    high = dict(parse_length_bound(item) for item in maximums or [])
+    rules = []
+    for name in list(low) + [n for n in high if n not in low]:
+        rule = LengthRule(name, low.get(name), high.get(name))
+        if rule.minimum is not None and rule.maximum is not None and rule.minimum > rule.maximum:
+            raise TabulintError(
+                f"field '{name}': minimum length {rule.minimum} is greater than maximum length {rule.maximum}"
+            )
+        rules.append(rule)
+    return rules
+
+
+def check_length_rules(records: list[Record], rules: list[LengthRule]) -> list[Issue]:
+    """Check character lengths on the string form of each non-missing value."""
+    issues = []
+    for rule in rules:
+        for row, record in enumerate(records, start=1):
+            if rule.field_name not in record:
+                continue
+            value = record[rule.field_name]
+            if is_missing(value):
+                continue
+            length = len(str(value))
+            if rule.minimum is not None and length < rule.minimum:
+                issues.append(Issue(
+                    code="below-min-length", severity="error",
+                    message=f"field '{rule.field_name}' length {length} is below minimum length {rule.minimum}",
+                    field_name=rule.field_name, row=row,
+                ))
+            if rule.maximum is not None and length > rule.maximum:
+                issues.append(Issue(
+                    code="above-max-length", severity="error",
+                    message=f"field '{rule.field_name}' length {length} is above maximum length {rule.maximum}",
+                    field_name=rule.field_name, row=row,
+                ))
+    return issues
