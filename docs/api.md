@@ -435,7 +435,9 @@ required-field rules and the empty-input check in `check_records`. They match th
 | `duplicate-record` | warning | A repeated-record group, reported once. |
 | `type-mismatch` | error | A nonmissing value differs from the dominant inferred type. |
 | `below-minimum` | error | A numeric value is below an inclusive minimum. |
-| `above-maximum` | error | A numeric value is above an inclusive maximum. |\n| `below-min-length` | error | A stringified value is shorter than its minimum character length. |\n| `above-max-length` | error | A stringified value is longer than its maximum character length. |
+| `above-maximum` | error | A numeric value is above an inclusive maximum. |
+| `below-min-length` | error | A stringified value is shorter than its minimum character length. |
+| `above-max-length` | error | A stringified value is longer than its maximum character length. |
 | `not-numeric` | error | A value checked by a numeric rule cannot be treated as numeric. |
 | `empty-dataset` | warning | No records were loaded or supplied. |
 
