@@ -92,12 +92,12 @@ def check_file(
             # The loader already validated the input; keep its report if the
             # file changes or becomes unreadable between the two reads.
             return report
-        if not content.strip():
+        if not content.strip() and input_path.suffix.lower() == ".json":
             report.issues = [issue for issue in report.issues if issue.code != "empty-dataset"]
             report.issues.append(
                 Issue(code="empty-file", severity="warning", message="file is empty")
             )
-        elif input_path.suffix.lower() == ".csv":
+        elif content.strip() and input_path.suffix.lower() == ".csv":
             try:
                 reader = csv.reader(content.splitlines(), delimiter=delimiter, strict=True)
                 report.field_names = next(reader, [])
