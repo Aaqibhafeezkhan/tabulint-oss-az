@@ -11,8 +11,8 @@ when making programmatic decisions.
 
 Signatures use `Path` from `pathlib`. A `*` marks keyword-only arguments.
 `<factory>` means a fresh empty list or dictionary is created for each instance.
-Annotations describe supported inputs; `NumericRule` and `LengthRule` validate their bounds
-at runtime. Unless an entry names a `TabulintError`, it has no intentional
+Annotations describe supported inputs; rule constructors validate bounds or
+allowed-value sets at runtime. Unless an entry names a `TabulintError`, it has no intentional
 domain-error exception for supported inputs. Ordinary Python exceptions from
 invalid argument types, custom objects, or resource limits can still propagate.
 
@@ -23,6 +23,7 @@ invalid argument types, custom objects, or resource limits can still propagate.
 ```text
 check_file(path: str | Path, rules: list[NumericRule] | None = None, *,
            length_rules: list[LengthRule] | None = None,
+           allowed_values_rules: list[AllowedValuesRule] | None = None,
            delimiter: str = ",", encoding: str = "utf-8",
            required_fields: list[str] | None = None) -> Report
 ```
@@ -33,6 +34,7 @@ CSV; `encoding` applies to every supported format. The whole dataset is loaded
 into memory. Raises `TabulintError` for the loading failures described below.
 Data-quality findings become issues in the returned report, not exceptions.
 `length_rules` applies optional character-length bounds; `required_fields` applies the optional presence checks described below.
+`allowed_values_rules` applies optional exact string-value restrictions.
 
 ### `check_records`
 
@@ -40,6 +42,7 @@ Data-quality findings become issues in the returned report, not exceptions.
 check_records(records: list[Record], rules: list[NumericRule] | None = None,
               path: str = "<records>",
               *, length_rules: list[LengthRule] | None = None,
+              allowed_values_rules: list[AllowedValuesRule] | None = None,
               required_fields: list[str] | None = None) -> Report
 ```
 
@@ -51,6 +54,8 @@ in first-seen order across all records. An empty list produces one
 dictionaries or lists raise `TabulintError` during duplicate detection. Supply
 valid `NumericRule` objects, preferably from `build_numeric_rules`, and optional
 `LengthRule` objects, preferably from `build_length_rules`.
+Allowed-values issues are appended after these checks when `allowed_values_rules`
+is supplied. Omitting it or supplying an empty list adds no checks.
 
 `required_fields` defaults to `None` (no required-field checks); an empty list
 also leaves behavior unchanged. Names follow `check_required_fields` semantics.
@@ -201,6 +206,41 @@ Returns a frozen data class with these fields:
 
 The constructor raises `TabulintError` for bounds that are not integers or finite
 floats (including booleans), or a minimum greater than its maximum.
+
+### `AllowedValuesRule`
+
+```text
+AllowedValuesRule(field_name: str, allowed_values: frozenset[str]) -> AllowedValuesRule
+```
+
+A frozen data class for exact, case-sensitive string membership. The constructor
+copies its values into a `frozenset` and raises `TabulintError` for an empty set,
+a bare string, or non-string members. Values containing commas can be supplied
+directly here; they cannot be represented in a CLI allowed-values option.
+
+### `build_allowed_values_rules`
+
+```text
+build_allowed_values_rules(options: list[str] | None = None) -> list[AllowedValuesRule]
+```
+
+Parses `FIELD=a,b,c` strings. Field names are stripped; values retain their
+whitespace and case. Commas always separate values, with no quoting or escape
+syntax. Missing `=`, blank field names, empty sets, and blank entries raise
+`TabulintError`. The last option for a repeated field replaces its values;
+fields retain first-seen order. No options returns an empty list.
+
+### `check_allowed_values_rules`
+
+```text
+check_allowed_values_rules(records: list[Record], rules: list[AllowedValuesRule]) -> list[Issue]
+```
+
+Compares `str(value)` to each rule's allowed set without trimming or changing
+case. Missing fields and values considered missing by `is_missing` are skipped;
+`0` and `False` are checked as `"0"` and `"False"`. Each disallowed value emits
+one `not-allowed` error with its field, one-based row, offending value, and sorted
+allowed values. Issues follow rule order, then row order. Inputs are not modified.
 
 ### `LengthRule`
 
@@ -438,6 +478,7 @@ required-field rules and the empty-input check in `check_records`. They match th
 | `above-maximum` | error | A numeric value is above an inclusive maximum. |
 | `below-min-length` | error | A stringified value is shorter than its minimum character length. |
 | `above-max-length` | error | A stringified value is longer than its maximum character length. |
+| `not-allowed` | error | A stringified value is outside its field's allowed set. |
 | `not-numeric` | error | A value checked by a numeric rule cannot be treated as numeric. |
 | `empty-dataset` | warning | No records were loaded or supplied. |
 

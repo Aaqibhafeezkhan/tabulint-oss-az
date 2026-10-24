@@ -36,8 +36,10 @@ def test_documented_issue_codes_and_severities_match_emitted_checks():
     ]
     rules = tabulint.build_numeric_rules(["age=0"], ["age=120"])
     length_rules = tabulint.build_length_rules(["name=4"], ["name=4"])
+    allowed_rules = tabulint.build_allowed_values_rules(["name=Ada"])
     reports = [
-        tabulint.check_records(records, rules, length_rules=length_rules, required_fields=["name"]),
+        tabulint.check_records(records, rules, length_rules=length_rules,
+                               required_fields=["name"], allowed_values_rules=allowed_rules),
         tabulint.check_records([]),
     ]
     emitted = {(issue.code, issue.severity) for report in reports for issue in report.issues}

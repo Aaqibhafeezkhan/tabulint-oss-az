@@ -8,7 +8,7 @@ from typing import TextIO
 from . import __version__, check_file
 from .models import TabulintError
 from .report import format_report, format_report_json
-from .validators import build_length_rules, build_numeric_rules
+from .validators import build_allowed_values_rules, build_length_rules, build_numeric_rules
 
 EXIT_OK = 0
 EXIT_ISSUES = 1
@@ -36,6 +36,10 @@ def build_parser() -> argparse.ArgumentParser:
         description="Check CSV, JSON, and JSON Lines datasets for common data-quality problems.",
     )
     parser.add_argument("path", help="path to a .csv, .json, .jsonl, or .ndjson dataset")
+    parser.add_argument(
+        "--allowed", action="append", metavar="FIELD=a,b,c",
+        help="permit only these exact string values for FIELD (repeatable; no comma escaping)",
+    )
     parser.add_argument(
         "--required",
         action="append",
@@ -111,9 +115,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
         length_rules = build_length_rules(args.minimum_lengths, args.maximum_lengths)
+        allowed_values_rules = build_allowed_values_rules(args.allowed)
         report = check_file(
             args.path, rules, length_rules=length_rules, delimiter=delimiter,
             encoding=args.encoding, required_fields=args.required,
+            allowed_values_rules=allowed_values_rules,
         )
     except TabulintError as exc:
         _print_console(f"tabulint: error: {exc}", stream=sys.stderr)

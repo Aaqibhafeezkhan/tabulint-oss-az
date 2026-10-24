@@ -45,6 +45,56 @@ def check_required_fields(records: list[Record], names: list[str]) -> list[Issue
 
 
 @dataclass(frozen=True)
+class AllowedValuesRule:
+    """Exact string values permitted for one field."""
+
+    field_name: str
+    allowed_values: frozenset[str]
+
+    def __post_init__(self) -> None:
+        if isinstance(self.allowed_values, str) or not self.allowed_values:
+            raise TabulintError(f"field '{self.field_name}': allowed values must be a non-empty set of strings")
+        if any(not isinstance(value, str) for value in self.allowed_values):
+            raise TabulintError(f"field '{self.field_name}': allowed values must be strings")
+        object.__setattr__(self, "allowed_values", frozenset(self.allowed_values))
+
+
+def build_allowed_values_rules(options: list[str] | None = None) -> list[AllowedValuesRule]:
+    """Parse FIELD=a,b,c options; the last option for a field wins."""
+    rules: dict[str, AllowedValuesRule] = {}
+    for text in options or []:
+        name, separator, raw = text.partition("=")
+        if not separator or not name.strip():
+            raise TabulintError(f"invalid allowed values '{text}' (expected field=a,b,c)")
+        values = raw.split(",")
+        if any(not value.strip() for value in values):
+            raise TabulintError(f"field '{name.strip()}': allowed values cannot be empty")
+        name = name.strip()
+        rules[name] = AllowedValuesRule(name, frozenset(values))
+    return list(rules.values())
+
+
+def check_allowed_values_rules(
+    records: list[Record], rules: list[AllowedValuesRule]
+) -> list[Issue]:
+    """Compare non-missing stringified values exactly, in rule and row order."""
+    issues = []
+    for rule in rules:
+        permitted = ", ".join(repr(value) for value in sorted(rule.allowed_values))
+        for row, record in enumerate(records, start=1):
+            if rule.field_name not in record or is_missing(record[rule.field_name]):
+                continue
+            value = str(record[rule.field_name])
+            if value not in rule.allowed_values:
+                issues.append(Issue(
+                    code="not-allowed", severity="error",
+                    message=f"field '{rule.field_name}' value {value!r} is not allowed; allowed values: {permitted}",
+                    field_name=rule.field_name, row=row,
+                ))
+    return issues
+
+
+@dataclass(frozen=True)
 class NumericRule:
     """A minimum and/or maximum bound for one numeric field."""
 

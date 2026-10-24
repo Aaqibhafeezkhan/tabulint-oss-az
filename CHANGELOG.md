@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add repeatable `--allowed FIELD=a,b,c` options and Python allowed-values rules
+  to report categorical values outside an explicit permitted set.
 - Add repeatable `--min-length` and `--max-length` options and Python length rules
   to validate character counts while skipping missing values.
 - Add repeatable `--required FIELD` and Python `required_fields` checks to report

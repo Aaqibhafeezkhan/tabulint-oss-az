@@ -6,11 +6,16 @@ from .analyzer import analyze, infer_type, is_missing, profile_fields
 from .loader import load_csv, load_dataset, load_json, load_jsonl
 from .models import FieldProfile, Issue, Record, Report, TabulintError
 from .report import format_report, format_report_json
-from .validators import LengthRule, NumericRule, build_length_rules, build_numeric_rules, check_length_rules, check_numeric_rules, check_required_fields
+from .validators import (
+    AllowedValuesRule, LengthRule, NumericRule,
+    build_allowed_values_rules, build_length_rules, build_numeric_rules,
+    check_allowed_values_rules, check_length_rules, check_numeric_rules, check_required_fields,
+)
 
 __version__ = "0.1.0"
 
 __all__ = [
+    "AllowedValuesRule",
     "FieldProfile",
     "Issue",
     "LengthRule",
@@ -20,9 +25,11 @@ __all__ = [
     "TabulintError",
     "__version__",
     "analyze",
+    "build_allowed_values_rules",
     "build_numeric_rules",
     "build_length_rules",
     "check_file",
+    "check_allowed_values_rules",
     "check_numeric_rules",
     "check_length_rules",
     "check_records",
@@ -45,11 +52,13 @@ def check_records(
     path: str = "<records>",
     *,
     length_rules: list[LengthRule] | None = None,
+    allowed_values_rules: list[AllowedValuesRule] | None = None,
     required_fields: list[str] | None = None,
 ) -> Report:
     """Run all checks against already-loaded records."""
     issues = analyze(records) + check_numeric_rules(records, rules or []) + check_length_rules(records, length_rules or [])
     issues += check_required_fields(records, required_fields or [])
+    issues += check_allowed_values_rules(records, allowed_values_rules or [])
     if not records:
         issues.append(
             Issue(
@@ -73,10 +82,14 @@ def check_file(
     rules: list[NumericRule] | None = None,
     *,
     length_rules: list[LengthRule] | None = None,
+    allowed_values_rules: list[AllowedValuesRule] | None = None,
     delimiter: str = ",",
     encoding: str = "utf-8",
     required_fields: list[str] | None = None,
 ) -> Report:
     """Load a CSV, JSON, or JSON Lines file and run all checks against it."""
     records = load_dataset(path, delimiter=delimiter, encoding=encoding)
-    return check_records(records, rules, path=str(path), length_rules=length_rules, required_fields=required_fields)
+    return check_records(
+        records, rules, path=str(path), length_rules=length_rules,
+        required_fields=required_fields, allowed_values_rules=allowed_values_rules,
+    )

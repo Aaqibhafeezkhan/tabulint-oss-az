@@ -497,7 +497,7 @@ Length limits are one of the most common real constraints on text data: country 
 
 ### [TASK-10] Add allowed-values validation
 
-**Status:** OPEN
+**Status:** DONE (issue #10)
 **GitHub issue:** [#10](https://github.com/ismayilzeynal/tabulint-oss-az/issues/10)
 **Labels:** `enhancement`, `validation`, `cli`
 
