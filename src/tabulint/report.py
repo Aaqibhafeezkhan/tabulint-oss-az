@@ -26,6 +26,9 @@ def format_report(report: Report) -> str:
         for profile in report.profiles:
             note = f" ({profile.missing_count} missing)" if profile.missing_count else ""
             lines.append(f"    {_safe_text(profile.name).ljust(width)}  {profile.dominant_type}{note}")
+    elif report.field_names:
+        lines.append("  fields:")
+        lines.extend(f"    {_safe_text(name)}" for name in report.field_names)
 
     missing_profiles = sorted(
         (profile for profile in report.profiles if profile.missing_count),

@@ -66,6 +66,9 @@ tabulint examples/clean.ndjson
 # Emit a machine-readable JSON report
 tabulint examples/clean.csv --format json
 
+# Accept a valid dataset that intentionally contains no records
+tabulint empty.json --allow-empty
+
 # Require fields to be present and non-empty in every record
 tabulint examples/clean.csv --required item_id --required age
 
@@ -118,8 +121,11 @@ each missing required value is reported at its one-based record row.
 
 Existing `missing-value` warnings and `missing-field` errors remain, so a required
 field can produce both its existing finding and a `required-missing` error.
-Zero-row inputs, including header-only CSVs, keep only the existing `empty-dataset`
-warning. Without `--required`, checks are unchanged. Required errors exit 1 by
+Zero-row inputs, including header-only CSVs, keep the `empty-dataset` warning. A
+zero-byte or whitespace-only file is reported as empty; a header-only CSV lists its
+field names, and an empty JSON array is reported as a dataset with no records. Use
+`--allow-empty` to suppress this warning and accept an intentionally empty dataset.
+Without `--required`, checks are unchanged. Required errors exit 1 by
 default; `--fail-on never` still reports them but exits 0 after successful loading
 and report output. Load and output failures continue to exit 2.
 
@@ -296,7 +302,7 @@ counts retain the original integer/float distinction.
 | `below-min-length` | error | A value is shorter than a `--min-length` bound |
 | `above-max-length` | error | A value is longer than a `--max-length` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
-| `empty-dataset` | warning | The dataset contains no records |
+| `empty-dataset` | warning | The file is empty or the loaded dataset contains no records |
 
 Each `duplicate-record` warning names the first occurrence and up to 10
 repeated row numbers. Larger groups end with an `and N more` count. The issue's

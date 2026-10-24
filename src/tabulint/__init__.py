@@ -1,5 +1,6 @@
 """tabulint: practical data-quality checks for CSV and JSON datasets."""
 
+import csv
 from pathlib import Path
 
 from .analyzer import analyze, infer_type, is_missing, profile_fields

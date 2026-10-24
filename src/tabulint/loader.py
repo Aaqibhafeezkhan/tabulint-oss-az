@@ -159,6 +159,9 @@ def load_json(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
             f"{path}: could not read file ({exc.strerror or type(exc).__name__})"
         ) from exc
 
+    if not text.strip():
+        return []
+
     try:
         data = json.loads(text, object_pairs_hook=partial(_unique_object, path=path))
     except json.JSONDecodeError as exc:
