@@ -10,6 +10,10 @@ is a prerequisite for another, though a few are natural neighbours and say so.
 The `Status` line is a snapshot; the GitHub issue is the source of truth for
 current availability.
 
+The initial 25 tasks below are complete. The next accepted roadmap batch is in
+[current contribution opportunities](docs/contributing-opportunities.md); use
+its live issue filters to find work that is still open and unclaimed.
+
 Status snapshot updated on 2026-10-25.
 
 Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and

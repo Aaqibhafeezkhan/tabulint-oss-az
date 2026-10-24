@@ -3,6 +3,9 @@
 Stable task ID to GitHub issue number and URL.
 Task details live in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md).
 
+This map covers the initial task IDs. New roadmap work uses GitHub issue
+numbers directly; see [current contribution opportunities](docs/contributing-opportunities.md).
+
 TASK-01 -> #1 -> https://github.com/ismayilzeynal/tabulint-oss-az/issues/1
 TASK-02 -> #2 -> https://github.com/ismayilzeynal/tabulint-oss-az/issues/2
 TASK-03 -> #3 -> https://github.com/ismayilzeynal/tabulint-oss-az/issues/3

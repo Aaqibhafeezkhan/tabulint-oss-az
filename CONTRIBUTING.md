@@ -98,11 +98,21 @@ git checkout -b issue-123-short-description
 
 ## 6. Implement one focused issue
 
-Pick an issue from the [issue tracker](https://github.com/ismayilzeynal/tabulint-oss-az/issues).
+Pick an issue from the [issue tracker](https://github.com/ismayilzeynal/tabulint-oss-az/issues)
+or [current contribution opportunities](docs/contributing-opportunities.md).
 Check its discussion, assignee, and linked pull requests, then comment with
-your intended approach before starting. Some issues have a longer description
+your intended approach and wait for maintainer confirmation before starting.
+Some issues have a longer description
 in [CONTRIBUTOR_TASKS.md](CONTRIBUTOR_TASKS.md). Follow the issue's acceptance
 criteria and keep unrelated changes out of the pull request.
+
+The current `new contributors` onboarding batch is reserved for people making
+their first contribution to this repository: one task per person. `good first
+issue` marks the most approachable tasks; other `help wanted` work may need
+more experience. You do not need an invitation or prior connection to the
+maintainer. Starring or following is optional and never a review/merge condition.
+Prior contributors can still report bugs, review work, and propose improvements
+outside this batch. The roadmap guide explains claim updates and release.
 
 Style notes:
 
@@ -114,7 +124,7 @@ Style notes:
   `CHANGELOG.md`. Documentation-only, test-only, and internal maintenance changes
   generally do not need an entry.
 - Code assistants are welcome. Review the diff yourself, run the tests, and be
-  able to explain the change you submit.
+  able to explain the change you submit. Describe AI assistance in the PR.
 
 ### Changelog entries
 

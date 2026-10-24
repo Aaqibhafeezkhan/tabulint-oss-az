@@ -9,6 +9,11 @@ problems that actually bite in practice: missing values, duplicate records,
 values that do not match the rest of their column, and numbers outside the range
 you expect. No configuration files, no runtime dependencies, no database.
 
+**New contributors welcome:** browse [open good first issues](https://github.com/ismayilzeynal/tabulint-oss-az/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22+-label%3Aclaimed)
+or [all help wanted tasks](https://github.com/ismayilzeynal/tabulint-oss-az/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+-label%3Aclaimed).
+The [contribution guide and roadmap](docs/contributing-opportunities.md) explain
+the scope, setup, and how to claim one task. No invitation is needed.
+
 ## Install
 
 Requires Python 3.11 or newer.
@@ -378,6 +383,10 @@ Contributions are welcome. To get started:
 The issue tracker shows what is currently available. The more detailed
 [contributor task descriptions](CONTRIBUTOR_TASKS.md) are useful background for
 issues that have a task ID.
+
+See the [current contribution opportunities](docs/contributing-opportunities.md)
+for the next roadmap batch, including parser fixes, report contracts,
+installation checks, CI recipes, and additional validation rules.
 
 ## Limitations
 
