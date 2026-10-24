@@ -809,7 +809,7 @@ A message such as `malformed JSON (Expecting value at line 1)` tells the user so
 
 ### [TASK-16] Reduce one measured analysis cost
 
-**Status:** OPEN
+**Status:** DONE (issue #16)
 **GitHub issue:** [#16](https://github.com/ismayilzeynal/tabulint-oss-az/issues/16)
 **Labels:** `performance`
 

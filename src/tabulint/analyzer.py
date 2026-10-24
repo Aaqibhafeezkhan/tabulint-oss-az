@@ -50,9 +50,11 @@ def infer_type(value: object) -> str:
 def field_names(records: list[Record]) -> list[str]:
     """Collect field names in first-seen order across all records."""
     names: list[str] = []
+    seen: set[str] = set()
     for record in records:
         for name in record:
-            if name not in names:
+            if name not in seen:
+                seen.add(name)
                 names.append(name)
     return names
 
