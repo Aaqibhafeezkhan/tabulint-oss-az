@@ -413,3 +413,40 @@ def test_utf8_bom_via_cli(write, capsys):
 def test_default_encoding_remains_utf8(write):
     path = write("people.csv", CSV, encoding="utf-8")
     assert main([path]) == EXIT_OK
+
+
+@pytest.mark.parametrize("content", ["", "  \n\t"])
+def test_empty_file_has_distinct_message_and_allow_empty(write, capsys, content):
+    path = write("empty.json", content)
+    assert main([path]) == EXIT_ISSUES
+    output = capsys.readouterr().out
+    assert "file is empty" in output
+    assert "dataset contains no records" not in output
+    assert main([path, "--allow-empty"]) == EXIT_OK
+    assert "no issues found" in capsys.readouterr().out
+
+
+def test_header_only_csv_reports_fields_and_allow_empty(write, capsys):
+    path = write("header.csv", "customer_id,email,status\n")
+    assert main([path]) == EXIT_ISSUES
+    output = capsys.readouterr().out
+    assert "customer_id" in output
+    assert "email" in output
+    assert "status" in output
+    assert "no records were found" in output
+    assert main([path, "--allow-empty"]) == EXIT_OK
+    assert "no issues found" in capsys.readouterr().out
+
+
+def test_empty_json_array_is_record_free_and_allow_empty(write, capsys):
+    path = write("empty.json", "[]")
+    assert main([path]) == EXIT_ISSUES
+    assert "dataset contains no records" in capsys.readouterr().out
+    assert main([path, "--allow-empty"]) == EXIT_OK
+    assert "no issues found" in capsys.readouterr().out
+
+
+def test_allow_empty_does_not_suppress_other_issues(write, capsys):
+    path = write("duplicates.csv", "name,age\nAda,36\nAda,36\n")
+    assert main([path, "--allow-empty"]) == EXIT_ISSUES
+    assert "duplicate-record" in capsys.readouterr().out

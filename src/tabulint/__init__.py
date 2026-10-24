@@ -1,5 +1,6 @@
 """tabulint: practical data-quality checks for CSV and JSON datasets."""
 
+import csv
 from pathlib import Path
 
 from .analyzer import analyze, infer_type, is_missing, profile_fields
@@ -74,4 +75,27 @@ def check_file(
 ) -> Report:
     """Load a CSV, JSON, or JSON Lines file and run all checks against it."""
     records = load_dataset(path, delimiter=delimiter, encoding=encoding)
-    return check_records(records, rules, path=str(path), required_fields=required_fields)
+    report = check_records(records, rules, path=str(path), required_fields=required_fields)
+    if not records:
+        source = Path(path)
+        try:
+            text = source.read_text(encoding=encoding)
+        except (OSError, UnicodeError):
+            text = None
+        message = "dataset contains no records"
+        if text is not None and not text.strip():
+            message = "file is empty or contains only whitespace"
+        elif source.suffix.lower() == ".csv" and text is not None:
+            try:
+                header = next(csv.reader(text.splitlines(), delimiter=delimiter), [])
+            except csv.Error:
+                header = []
+            if header:
+                report.field_names = header
+                message = f"CSV header contains fields {header!r}, but no records were found"
+        report.issues = [
+            Issue(issue.code, issue.severity, message, issue.field_name, issue.row)
+            if issue.code == "empty-dataset" else issue
+            for issue in report.issues
+        ]
+    return report

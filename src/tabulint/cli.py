@@ -63,6 +63,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="write the report to PATH as UTF-8, overwriting an existing file",
     )
     parser.add_argument(
+        "--allow-empty",
+        action="store_true",
+        help="accept datasets with no records and suppress the empty-dataset warning",
+    )
+    parser.add_argument(
         "--quiet",
         "-q",
         action="store_true",
@@ -109,6 +114,9 @@ def main(argv: list[str] | None = None) -> int:
     except TabulintError as exc:
         _print_console(f"tabulint: error: {exc}", stream=sys.stderr)
         return EXIT_ERROR
+
+    if args.allow_empty:
+        report.issues = [issue for issue in report.issues if issue.code != "empty-dataset"]
 
     formatter = format_report_json if args.format == "json" else format_report
     rendered = formatter(report) + "\n"

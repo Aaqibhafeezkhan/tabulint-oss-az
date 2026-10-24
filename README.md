@@ -291,7 +291,7 @@ counts retain the original integer/float distinction.
 | `below-minimum` | error | A value is below a `--min` bound |
 | `above-maximum` | error | A value is above an `--max` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
-| `empty-dataset` | warning | The dataset contains no records |
+| `empty-dataset` | warning | The file is empty or the loaded dataset contains no records |
 
 Each `duplicate-record` warning names the first occurrence and up to 10
 repeated row numbers. Larger groups end with an `and N more` count. The issue's
