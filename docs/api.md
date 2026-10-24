@@ -32,13 +32,18 @@ check_file(path: str | Path, rules: list[NumericRule] | None = None, *,
            required_fields: list[str] | None = None) -> Report
 ```
 
-Loads a file with `load_dataset`, then returns the same complete report as
-`check_records`. The report's path is `str(path)`. `delimiter` applies only to
+Loads a file using the same readers as `load_dataset`, then applies the checks
+from `check_records`. The report's path is `str(path)`. `delimiter` applies only to
 CSV; `encoding` applies to every supported format. The whole dataset is loaded
 into memory. Raises `TabulintError` for the loading failures described below.
 Data-quality findings become issues in the returned report, not exceptions.
 `length_rules` applies optional character-length bounds; `required_fields` applies the optional presence checks described below.
 `allowed_values_rules` applies optional exact string-value restrictions.
+For empty files, the report distinguishes blank input from valid record-free
+datasets. A header-only CSV retains its header names in `field_names` and
+profiles with `null` dominant type, empty type counts, and zero missing counts;
+its warning names the headers. Metadata comes from the same open/parse operation.
+The CLI's `--allow-empty` suppresses only this warning; the Python API returns it.
 
 ### `check_records`
 
@@ -53,8 +58,8 @@ check_records(records: list[Record], rules: list[NumericRule] | None = None,
 Returns structural issues, optional numeric-rule, length-rule, and required-field issues,
 field profiles, and record counts. `path` is a display label; no file is opened. Fields are collected
 in first-seen order across all records. An empty list produces one
-`empty-dataset` warning. This is also the result for a header-only CSV passed to
-`check_file`; headers are not retained when there are no records. Cyclic
+`empty-dataset` warning with a generic no-records message. `check_file` adds
+source-specific empty descriptions and retains header-only CSV names. Cyclic
 dictionaries or lists raise `TabulintError` during duplicate detection. Supply
 valid `NumericRule` objects, preferably from `build_numeric_rules`, and optional
 `LengthRule` objects, preferably from `build_length_rules`.
@@ -157,7 +162,7 @@ load_csv(path: str | Path, *, delimiter: str = ",",
 
 Returns records whose keys come from the header and whose values are strings.
 A row shorter than the header receives `None` for its trailing missing fields.
-An empty or header-only file returns `[]`. Quoted multiline fields are supported.
+An empty, whitespace-only, or header-only file returns `[]`. Quoted multiline fields are supported.
 Pass an actual tab character (`"\t"`) for tab-separated input; the CLI's literal
 backslash-t shortcut is not interpreted by this function.
 
@@ -172,7 +177,7 @@ load_json(path: str | Path, *, encoding: str = "utf-8") -> list[Record]
 ```
 
 Returns records from a JSON array of objects, preserving decoded JSON values.
-`[]` returns no records; an empty file is malformed JSON. Raises `TabulintError`
+`[]` and empty or whitespace-only files return no records. Raises `TabulintError`
 for invalid syntax, a non-array root, non-object array items, duplicate decoded
 keys in any object (including nested objects), and parser nesting or integer
 size limits, as well as the common reader errors. Syntax diagnostics include

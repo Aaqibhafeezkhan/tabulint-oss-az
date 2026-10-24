@@ -24,3 +24,8 @@ The option accepts `warning`, `error`, or `never` and defaults to `warning`.
 
 Load failures, invalid arguments, and output-write failures always return 2,
 regardless of `--fail-on`.
+
+`--allow-empty` removes only the `empty-dataset` warning before applying this
+threshold and rendering the report. Blank files, header-only CSVs, and empty
+JSON arrays can therefore exit 0. Other warnings/errors are still evaluated,
+and load, argument, or output-write failures still exit 2.

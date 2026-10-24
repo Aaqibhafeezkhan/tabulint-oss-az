@@ -37,6 +37,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("path", help="path to a .csv, .json, .jsonl, or .ndjson dataset")
     parser.add_argument(
+        "--allow-empty", action="store_true",
+        help="accept an empty dataset by suppressing only the empty-dataset warning",
+    )
+    parser.add_argument(
         "--allowed", action="append", metavar="FIELD=a,b,c",
         help="permit only these exact string values for FIELD (repeatable; no comma escaping)",
     )
@@ -124,6 +128,9 @@ def main(argv: list[str] | None = None) -> int:
     except TabulintError as exc:
         _print_console(f"tabulint: error: {exc}", stream=sys.stderr)
         return EXIT_ERROR
+
+    if args.allow_empty:
+        report.issues = [issue for issue in report.issues if issue.code != "empty-dataset"]
 
     formatter = format_report_json if args.format == "json" else format_report
     rendered = formatter(report) + "\n"

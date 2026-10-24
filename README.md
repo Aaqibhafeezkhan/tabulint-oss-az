@@ -81,6 +81,9 @@ tabulint examples/clean.csv --min-length item_id=2 --max-length item_id=12
 # Restrict a field to exact allowed values
 tabulint data.csv --allowed status=active,inactive --allowed tier=free,pro
 
+# Accept an intentionally empty dataset
+tabulint empty.csv --allow-empty
+
 # Set the CSV delimiter explicitly
 tabulint examples/clean.csv --delimiter ","
 
@@ -110,6 +113,18 @@ and the last option for a repeated field replaces its earlier allowed set.
 Empty sets or blank entries are errors (exit 2). Commas always separate values
 in the CLI; quoting or escaping cannot include a comma in a value. Use Python's
 `AllowedValuesRule` for values containing commas.
+
+Empty inputs produce an `empty-dataset` warning by default (exit 1 under the
+default `--fail-on warning`). Zero-byte and whitespace-only files report that
+the input file is empty. A header-only CSV reports its header names and that it
+has no records; those fields remain in text and JSON reports with `null` type
+and zero missing counts. A valid empty JSON array reports that the dataset has
+no records. Blank JSON files are accepted as empty input too.
+
+Use `--allow-empty` to suppress only the `empty-dataset` warning and accept these
+cases with exit 0. Other findings and load, argument, or output failures retain
+their existing exit behavior. The flag does not change nonempty reports or the
+`--fail-on` contract.
 
 Bounds must be finite numbers. Values such as `nan`, `inf`, and `-inf` are rejected.
 Integer bounds and integer values are compared without rounding, including

@@ -6,10 +6,28 @@ import io
 import json
 import os
 import stat
+from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
+from typing import TextIO
 
 from .models import Record, TabulintError
+
+
+@dataclass
+class _LoadedDataset:
+    records: list[Record]
+    field_names: list[str] = field(default_factory=list)
+    empty_message: str = "dataset contains no records"
+
+
+def _is_blank(handle: TextIO) -> bool:
+    """Inspect decoded text without buffering the entire CSV file."""
+    while chunk := handle.read(8192):
+        if chunk.strip():
+            handle.seek(0)
+            return False
+    return True
 
 
 def _bounded_repr(value: str, limit: int = 80) -> str:
@@ -96,15 +114,23 @@ def load_csv(
     encoding: str = "utf-8",
 ) -> list[Record]:
     """Read a CSV file with a header row into a list of dicts."""
+    return _read_csv(path, delimiter=delimiter, encoding=encoding).records
+
+
+def _read_csv(
+    path: str | Path, *, delimiter: str = ",", encoding: str = "utf-8"
+) -> _LoadedDataset:
     path = Path(path)
     if len(delimiter) != 1:
         raise TabulintError(f"{path}: CSV delimiter must be exactly one character")
     _validate_input(path, encoding)
     try:
         with path.open("r", newline="", encoding=encoding) as handle:
+            if _is_blank(handle):
+                return _LoadedDataset([], empty_message="input file is empty or contains only whitespace")
             reader = csv.DictReader(handle, delimiter=delimiter, strict=True)
             if reader.fieldnames is None:
-                return []
+                return _LoadedDataset([])
             if any(name is None or name == "" for name in reader.fieldnames):
                 raise TabulintError(f"{path}: CSV header contains an empty column name")
             seen_names: set[str] = set()
@@ -125,7 +151,11 @@ def load_csv(
                         "uses a different separator."
                     )
                 rows.append(dict(row))
-            return rows
+            if rows:
+                return _LoadedDataset(rows)
+            names = list(reader.fieldnames)
+            message = "CSV contains a header but no records; fields: " + ", ".join(repr(name) for name in names)
+            return _LoadedDataset([], names, message)
     except FileNotFoundError as exc:
         raise TabulintError(f"{path}: file not found") from exc
     except UnicodeError as exc:
@@ -144,6 +174,10 @@ def load_csv(
 
 def load_json(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
     """Read a JSON file containing an array of objects into a list of dicts."""
+    return _read_json(path, encoding=encoding).records
+
+
+def _read_json(path: str | Path, *, encoding: str = "utf-8") -> _LoadedDataset:
     path = Path(path)
     _validate_input(path, encoding)
     try:
@@ -159,6 +193,8 @@ def load_json(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
             f"{path}: could not read file ({exc.strerror or type(exc).__name__})"
         ) from exc
 
+    if not text.strip():
+        return _LoadedDataset([], empty_message="input file is empty or contains only whitespace")
     try:
         data = json.loads(text, object_pairs_hook=partial(_unique_object, path=path))
     except json.JSONDecodeError as exc:
@@ -173,11 +209,15 @@ def load_json(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
     for index, item in enumerate(data):
         if not isinstance(item, dict):
             raise TabulintError(f"{path}: item {index} is not a JSON object")
-    return [dict(item) for item in data]
+    return _LoadedDataset([dict(item) for item in data])
 
 
 def load_jsonl(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
     """Read a JSON Lines file containing one JSON object per line."""
+    return _read_jsonl(path, encoding=encoding).records
+
+
+def _read_jsonl(path: str | Path, *, encoding: str = "utf-8") -> _LoadedDataset:
     path = Path(path)
     _validate_input(path, encoding)
     rows: list[Record] = []
@@ -211,7 +251,7 @@ def load_jsonl(path: str | Path, *, encoding: str = "utf-8") -> list[Record]:
         raise TabulintError(
             f"{path}: could not read file ({exc.strerror or type(exc).__name__})"
         ) from exc
-    return rows
+    return _LoadedDataset(rows, empty_message="input file is empty or contains only whitespace")
 
 
 def load_dataset(
@@ -221,13 +261,19 @@ def load_dataset(
     encoding: str = "utf-8",
 ) -> list[Record]:
     """Load a dataset, choosing the reader from the file extension."""
+    return _load_dataset(path, delimiter=delimiter, encoding=encoding).records
+
+
+def _load_dataset(
+    path: str | Path, *, delimiter: str = ",", encoding: str = "utf-8"
+) -> _LoadedDataset:
     suffix = Path(path).suffix.lower()
     if suffix == ".csv":
-        return load_csv(path, delimiter=delimiter, encoding=encoding)
+        return _read_csv(path, delimiter=delimiter, encoding=encoding)
     if suffix == ".json":
-        return load_json(path, encoding=encoding)
+        return _read_json(path, encoding=encoding)
     if suffix in {".jsonl", ".ndjson"}:
-        return load_jsonl(path, encoding=encoding)
+        return _read_jsonl(path, encoding=encoding)
     raise TabulintError(
         f"{path}: unsupported file type '{suffix or 'none'}' "
         "(expected .csv, .json, .jsonl, or .ndjson)"

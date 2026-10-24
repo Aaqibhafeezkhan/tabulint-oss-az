@@ -1,9 +1,10 @@
 """tabulint: practical data-quality checks for CSV and JSON datasets."""
 
 from pathlib import Path
+from dataclasses import replace
 
 from .analyzer import analyze, infer_type, is_missing, profile_fields
-from .loader import load_csv, load_dataset, load_json, load_jsonl
+from .loader import _load_dataset, load_csv, load_dataset, load_json, load_jsonl
 from .models import FieldProfile, Issue, Record, Report, TabulintError
 from .report import format_report, format_report_json
 from .validators import (
@@ -88,8 +89,16 @@ def check_file(
     required_fields: list[str] | None = None,
 ) -> Report:
     """Load a CSV, JSON, or JSON Lines file and run all checks against it."""
-    records = load_dataset(path, delimiter=delimiter, encoding=encoding)
-    return check_records(
-        records, rules, path=str(path), length_rules=length_rules,
+    dataset = _load_dataset(path, delimiter=delimiter, encoding=encoding)
+    report = check_records(
+        dataset.records, rules, path=str(path), length_rules=length_rules,
         required_fields=required_fields, allowed_values_rules=allowed_values_rules,
     )
+    if not dataset.records:
+        report.field_names = dataset.field_names
+        report.profiles = [FieldProfile(name, "null") for name in dataset.field_names]
+        report.issues = [
+            replace(issue, message=dataset.empty_message) if issue.code == "empty-dataset" else issue
+            for issue in report.issues
+        ]
+    return report

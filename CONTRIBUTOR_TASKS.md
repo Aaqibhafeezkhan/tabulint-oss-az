@@ -10,7 +10,7 @@ is a prerequisite for another, though a few are natural neighbours and say so.
 The `Status` line is a snapshot; the GitHub issue is the source of truth for
 current availability.
 
-Status snapshot updated on 2026-10-24.
+Status snapshot updated on 2026-10-25.
 
 Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and
 pull-request workflow. Check the issue discussion and linked pull requests,
@@ -294,7 +294,7 @@ JSON Lines is the standard interchange format for log exports and streaming data
 
 ### [TASK-06] Improve empty-dataset handling
 
-**Status:** OPEN
+**Status:** DONE (issue #6)
 **GitHub issue:** [#6](https://github.com/ismayilzeynal/tabulint-oss-az/issues/6)
 **Labels:** `enhancement`, `cli`
 
