@@ -21,8 +21,8 @@ invalid argument types, custom objects, or resource limits can still propagate.
 ### `check_file`
 
 ```text
-check_file(path: str | Path, rules: list[NumericRule] | None = None,
-           length_rules: list[LengthRule] | None = None, *,
+check_file(path: str | Path, rules: list[NumericRule] | None = None, *,
+           length_rules: list[LengthRule] | None = None,
            delimiter: str = ",", encoding: str = "utf-8",
            required_fields: list[str] | None = None) -> Report
 ```
@@ -211,8 +211,8 @@ LengthRule(field_name: str, minimum: int | None = None,
 
 Returns a frozen data class describing inclusive minimum and/or maximum character
 lengths for a field. Bounds must be non-negative integers, and the minimum cannot
-exceed the maximum. Invalid bounds raise `TabulintError` when created through
-`build_length_rules`; the direct data-class constructor stores its supplied values.
+exceed the maximum. Invalid bounds, including booleans, raise `TabulintError`
+both in the constructor and through `build_length_rules`.
 
 ### `build_length_rules`
 

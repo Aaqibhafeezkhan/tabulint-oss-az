@@ -1,4 +1,4 @@
-""""Command-line interface for tabulint."""
+"""Command-line interface for tabulint."""
 
 import argparse
 import sys

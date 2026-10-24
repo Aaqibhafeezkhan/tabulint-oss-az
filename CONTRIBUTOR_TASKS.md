@@ -10,7 +10,7 @@ is a prerequisite for another, though a few are natural neighbours and say so.
 The `Status` line is a snapshot; the GitHub issue is the source of truth for
 current availability.
 
-Status snapshot updated on 2026-10-02 after the maintainer integration audit.
+Status snapshot updated on 2026-10-24.
 
 Before you start, read [CONTRIBUTING.md](CONTRIBUTING.md) for the fork and
 pull-request workflow. Check the issue discussion and linked pull requests,
@@ -440,7 +440,7 @@ Python's `float()` accepts `nan` and `inf`, so those strings currently infer as 
 
 ### [TASK-09] Add string-length validation
 
-**Status:** OPEN
+**Status:** DONE (issue #9, merged in #60)
 **GitHub issue:** [#9](https://github.com/ismayilzeynal/tabulint-oss-az/issues/9)
 **Labels:** `enhancement`, `validation`, `cli`
 

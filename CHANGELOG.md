@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add repeatable `--min-length` and `--max-length` options and Python length rules
+  to validate character counts while skipping missing values.
 - Add repeatable `--required FIELD` and Python `required_fields` checks to report
   absent or empty required values as errors while preserving existing warnings.
 - Add `--fail-on {error,warning,never}` to control whether warnings fail the

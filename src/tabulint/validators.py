@@ -169,6 +169,20 @@ class LengthRule:
     minimum: int | None = None
     maximum: int | None = None
 
+    def __post_init__(self) -> None:
+        for name, bound in (("minimum", self.minimum), ("maximum", self.maximum)):
+            if bound is not None and (
+                isinstance(bound, bool) or not isinstance(bound, int) or bound < 0
+            ):
+                raise TabulintError(
+                    f"field '{self.field_name}': {name} length must be a non-negative integer"
+                )
+        if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
+            raise TabulintError(
+                f"field '{self.field_name}': minimum length {_format_number(self.minimum)} "
+                f"is greater than maximum length {_format_number(self.maximum)}"
+            )
+
 
 def parse_length_bound(text: str) -> tuple[str, int]:
     """Parse a non-negative integer field length bound."""
@@ -194,10 +208,6 @@ def build_length_rules(
     rules = []
     for name in list(low) + [n for n in high if n not in low]:
         rule = LengthRule(name, low.get(name), high.get(name))
-        if rule.minimum is not None and rule.maximum is not None and rule.minimum > rule.maximum:
-            raise TabulintError(
-                f"field '{name}': minimum length {rule.minimum} is greater than maximum length {rule.maximum}"
-            )
         rules.append(rule)
     return rules
 
@@ -216,13 +226,13 @@ def check_length_rules(records: list[Record], rules: list[LengthRule]) -> list[I
             if rule.minimum is not None and length < rule.minimum:
                 issues.append(Issue(
                     code="below-min-length", severity="error",
-                    message=f"field '{rule.field_name}' length {length} is below minimum length {rule.minimum}",
+                    message=f"field '{rule.field_name}' length {length} is below minimum length {_format_number(rule.minimum)}",
                     field_name=rule.field_name, row=row,
                 ))
             if rule.maximum is not None and length > rule.maximum:
                 issues.append(Issue(
                     code="above-max-length", severity="error",
-                    message=f"field '{rule.field_name}' length {length} is above maximum length {rule.maximum}",
+                    message=f"field '{rule.field_name}' length {length} is above maximum length {_format_number(rule.maximum)}",
                     field_name=rule.field_name, row=row,
                 ))
     return issues

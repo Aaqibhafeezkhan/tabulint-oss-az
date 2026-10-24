@@ -71,8 +71,8 @@ def check_records(
 def check_file(
     path: str | Path,
     rules: list[NumericRule] | None = None,
-    length_rules: list[LengthRule] | None = None,
     *,
+    length_rules: list[LengthRule] | None = None,
     delimiter: str = ",",
     encoding: str = "utf-8",
     required_fields: list[str] | None = None,
