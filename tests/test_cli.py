@@ -413,3 +413,20 @@ def test_utf8_bom_via_cli(write, capsys):
 def test_default_encoding_remains_utf8(write):
     path = write("people.csv", CSV, encoding="utf-8")
     assert main([path]) == EXIT_OK
+
+
+def test_max_length_violation_exits_one(write, capsys):
+    path = write("codes.csv", "code\nABC\n")
+    assert main([path, "--max-length", "code=2"]) == EXIT_ISSUES
+    assert "above-max-length" in capsys.readouterr().out
+
+
+def test_length_bounds_pass_exits_zero(write):
+    path = write("codes.csv", "code\nAB\nXY\n")
+    assert main([path, "--min-length", "code=2", "--max-length", "code=2"]) == EXIT_OK
+
+
+def test_invalid_length_bound_exits_two(write, capsys):
+    path = write("codes.csv", "code\nAB\n")
+    assert main([path, "--max-length", "code=-1"]) == EXIT_ERROR
+    assert "length bound" in capsys.readouterr().err

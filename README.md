@@ -75,6 +75,9 @@ tabulint examples/clean.csv --min age=0 --max age=120
 # Bounds are repeatable and independent
 tabulint examples/clean.csv --min score=0 --max score=100 --max attempts=3
 
+# Require a stringified value to be between 2 and 12 characters
+tabulint examples/clean.csv --min-length item_id=2 --max-length item_id=12
+
 # Set the CSV delimiter explicitly
 tabulint examples/clean.csv --delimiter ","
 
@@ -290,6 +293,8 @@ counts retain the original integer/float distinction.
 | `type-mismatch` | error | A value does not match the field's dominant inferred type |
 | `below-minimum` | error | A value is below a `--min` bound |
 | `above-maximum` | error | A value is above an `--max` bound |
+| `below-min-length` | error | A value is shorter than a `--min-length` bound |
+| `above-max-length` | error | A value is longer than a `--max-length` bound |
 | `not-numeric` | error | A `--min`/`--max` bound was given for a non-numeric value |
 | `empty-dataset` | warning | The dataset contains no records |
 
@@ -353,8 +358,8 @@ These are the known boundaries of the current release, not bugs:
 
 - CSV is read as UTF-8 by default with configurable encoding and delimiter; automatic delimiter sniffing is not available.
 - Datasets are loaded fully into memory, so very large files are limited by RAM.
-- Numeric `min`/`max` and required-field validation are available; string-length
-  and allowed-values rules are not available yet.
+- Numeric `min`/`max`, string-length, and required-field validation are available;
+  allowed-values rules are not available yet.
 - JSON output is intended for machine consumption; CSV, SARIF, JUnit, and file-specific report formats are not available yet.
 - Type inference is deliberately simple and has no date/time or currency
   awareness.

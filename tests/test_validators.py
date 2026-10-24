@@ -2,8 +2,11 @@ import sys
 
 import pytest
 
-from tabulint import TabulintError, build_numeric_rules, check_numeric_rules
-from tabulint.validators import NumericRule
+from tabulint import (
+    TabulintError, build_length_rules, build_numeric_rules,
+    check_length_rules, check_numeric_rules,
+)
+from tabulint.validators import LengthRule, NumericRule
 
 
 def test_build_rules_from_bounds():
@@ -204,3 +207,72 @@ def test_oversized_native_integer_bounds_have_bounded_diagnostics():
     with pytest.raises(TabulintError, match="greater than maximum") as caught:
         NumericRule("n", minimum=bound, maximum=-bound)
     assert len(str(caught.value)) < 200
+
+
+def test_build_length_rules():
+    assert build_length_rules(["code=2"], ["code=4", "name=10"]) == [
+        LengthRule("code", 2, 4), LengthRule("name", None, 10)
+    ]
+
+
+def test_length_rule_violations_include_codes_and_rows():
+    issues = check_length_rules([{"code": "A"}, {"code": "ABCDE"}], build_length_rules(["code=2"], ["code=4"]))
+    assert [issue.code for issue in issues] == ["below-min-length", "above-max-length"]
+    assert [issue.row for issue in issues] == [1, 2]
+
+
+def test_length_boundaries_and_missing_values_pass():
+    records = [{"code": "AB"}, {"code": "WXYZ"}, {"code": ""}, {"other": "value"}]
+    assert check_length_rules(records, build_length_rules(["code=2"], ["code=4"])) == []
+
+
+@pytest.mark.parametrize("bound", ["code=-1", "code=one", "code=1.5"])
+def test_invalid_length_bound_raises(bound):
+    with pytest.raises(TabulintError, match="length bound"):
+        build_length_rules([bound], None)
+
+
+def test_inverted_length_bounds_raise():
+    with pytest.raises(TabulintError, match="greater than maximum length"):
+        build_length_rules(["code=5"], ["code=2"])
+
+
+@pytest.mark.parametrize("name", ["minimum", "maximum"])
+@pytest.mark.parametrize("bound", [-1, 1.5, True, False, "2", float("inf")])
+def test_direct_length_rule_rejects_invalid_bounds(name, bound):
+    with pytest.raises(TabulintError, match="non-negative integer"):
+        LengthRule("code", **{name: bound})
+
+
+def test_direct_length_rule_rejects_inverted_bounds():
+    with pytest.raises(TabulintError, match="greater than maximum length"):
+        LengthRule("code", minimum=3, maximum=2)
+
+
+@pytest.mark.parametrize("value", [None, "", " ", "\t"])
+def test_length_rules_skip_all_missing_values(value):
+    assert check_length_rules([{"code": value}], [LengthRule("code", 2, 4)]) == []
+
+
+@pytest.mark.parametrize("value,length", [("ə🙂", 2), (" A ", 3), (12, 2), (False, 5)])
+def test_length_rules_count_string_characters_without_trimming(value, length):
+    assert check_length_rules([{"code": value}], [LengthRule("code", length, length)]) == []
+
+
+def test_repeated_length_bounds_keep_last_value_and_field_order():
+    assert build_length_rules([" code =1", "name=2", "code=3"], ["other=9"]) == [
+        LengthRule("code", 3), LengthRule("name", 2), LengthRule("other", maximum=9),
+    ]
+
+
+def test_large_length_bound_has_readable_diagnostics():
+    limit = sys.get_int_max_str_digits()
+    if not limit:
+        pytest.skip("Python integer string conversion limit is disabled")
+    bound = 10 ** (limit + 10)
+    issues = check_length_rules([{"code": "A"}], [LengthRule("code", minimum=bound)])
+    assert issues[0].code == "below-min-length"
+    assert "integer with" in issues[0].message
+    assert len(issues[0].message) < 180
+    with pytest.raises(TabulintError, match="greater than maximum length"):
+        LengthRule("code", minimum=bound, maximum=1)

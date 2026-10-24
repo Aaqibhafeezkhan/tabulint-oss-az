@@ -8,7 +8,7 @@ from typing import TextIO
 from . import __version__, check_file
 from .models import TabulintError
 from .report import format_report, format_report_json
-from .validators import build_numeric_rules
+from .validators import build_length_rules, build_numeric_rules
 
 EXIT_OK = 0
 EXIT_ISSUES = 1
@@ -57,6 +57,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="require FIELD to be at most NUMBER (repeatable)",
     )
     parser.add_argument(
+        "--min-length", dest="minimum_lengths", action="append", metavar="FIELD=N",
+        help="require FIELD to have at least N characters (repeatable)",
+    )
+    parser.add_argument(
+        "--max-length", dest="maximum_lengths", action="append", metavar="FIELD=N",
+        help="require FIELD to have at most N characters (repeatable)",
+    )
+    parser.add_argument(
         "--output",
         "-o",
         metavar="PATH",
@@ -102,9 +110,10 @@ def main(argv: list[str] | None = None) -> int:
     delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
+        length_rules = build_length_rules(args.minimum_lengths, args.maximum_lengths)
         report = check_file(
-            args.path, rules, delimiter=delimiter, encoding=args.encoding,
-            required_fields=args.required,
+            args.path, rules, length_rules=length_rules, delimiter=delimiter,
+            encoding=args.encoding, required_fields=args.required,
         )
     except TabulintError as exc:
         _print_console(f"tabulint: error: {exc}", stream=sys.stderr)
