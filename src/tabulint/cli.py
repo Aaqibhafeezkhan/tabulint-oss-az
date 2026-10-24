@@ -125,7 +125,10 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_ERROR
 
     if args.allow_empty:
-        report.issues = [issue for issue in report.issues if issue.code != "empty-dataset"]
+        report.issues = [
+            issue for issue in report.issues
+            if issue.code not in {"empty-dataset", "empty-file"}
+        ]
 
     formatter = format_report_json if args.format == "json" else format_report
     rendered = formatter(report) + "\n"
