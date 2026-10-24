@@ -72,6 +72,16 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
+The development dependencies also include mypy. Check the focused core model
+and analyzer typing contract with:
+
+```bash
+python -m mypy
+```
+
+The `pyproject.toml` configuration enables strict checks for these two modules;
+the rest of the package is outside this typing task's scope.
+
 CI runs the full suite and CLI smoke test on Ubuntu and Windows with Python
 3.11, 3.12, and 3.13. Windows needs no extra setup beyond the PowerShell or
 Command Prompt virtual-environment activation shown above. Symbolic-link tests

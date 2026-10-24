@@ -4,7 +4,7 @@ from collections import Counter
 import math
 
 from ._numbers import _format_number, _parse_number
-from .models import FieldProfile, Issue, Record, TabulintError
+from .models import FieldProfile, InferredType, Issue, Record, TabulintError
 
 BOOLEAN_LITERALS = {"true", "false", "yes", "no", "y", "n", "t", "f"}
 
@@ -18,7 +18,7 @@ def is_missing(value: object) -> bool:
     return False
 
 
-def infer_type(value: object) -> str:
+def infer_type(value: object) -> InferredType:
     """Infer one of: null, boolean, integer, float, string.
 
     Strings are parsed, so the CSV text "12" and the JSON number 12 both
@@ -63,7 +63,7 @@ def profile_fields(records: list[Record]) -> list[FieldProfile]:
     """Build a FieldProfile for every field in the dataset."""
     profiles = []
     for name in field_names(records):
-        counts: Counter[str] = Counter()
+        counts: Counter[InferredType] = Counter()
         for record in records:
             counts[infer_type(record.get(name))] += 1
         missing = counts.pop("null", 0)

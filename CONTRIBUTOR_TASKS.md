@@ -1200,7 +1200,7 @@ Exit codes are the whole interface when tabulint runs in a pipeline. Today code 
 
 ### [TASK-24] Improve type hints in one core area
 
-**Status:** OPEN
+**Status:** DONE (issue #24)
 **GitHub issue:** [#24](https://github.com/ismayilzeynal/tabulint-oss-az/issues/24)
 **Labels:** `enhancement`, `documentation`
 

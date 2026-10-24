@@ -1,10 +1,14 @@
 """Core data structures shared across tabulint modules."""
 
 from dataclasses import dataclass, field
+from typing import Literal, TypeAlias
 
 Record = dict[str, object]
 
-SEVERITIES = ("error", "warning")
+Severity: TypeAlias = Literal["error", "warning"]
+InferredType: TypeAlias = Literal["null", "boolean", "integer", "float", "string"]
+
+SEVERITIES: tuple[Severity, ...] = ("error", "warning")
 
 
 @dataclass(frozen=True)
@@ -12,7 +16,7 @@ class Issue:
     """A single data-quality problem found in a dataset."""
 
     code: str
-    severity: str
+    severity: Severity
     message: str
     field_name: str | None = None
     row: int | None = None
@@ -23,8 +27,8 @@ class FieldProfile:
     """Inferred type information for one field."""
 
     name: str
-    dominant_type: str
-    type_counts: dict[str, int] = field(default_factory=dict)
+    dominant_type: InferredType
+    type_counts: dict[InferredType, int] = field(default_factory=dict)
     missing_count: int = 0
 
 

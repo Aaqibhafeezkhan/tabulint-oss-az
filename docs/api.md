@@ -11,6 +11,10 @@ when making programmatic decisions.
 
 Signatures use `Path` from `pathlib`. A `*` marks keyword-only arguments.
 `<factory>` means a fresh empty list or dictionary is created for each instance.
+`Severity` abbreviates `Literal["error", "warning"]`; `InferredType` abbreviates
+`Literal["null", "boolean", "integer", "float", "string"]`. These annotations
+reject misspelled names in static checks while values and report output remain
+ordinary strings. They do not add runtime validation.
 Annotations describe supported inputs; rule constructors validate bounds or
 allowed-value sets at runtime. Unless an entry names a `TabulintError`, it has no intentional
 domain-error exception for supported inputs. Ordinary Python exceptions from
@@ -91,7 +95,7 @@ dominant type `"null"`. No intentional `TabulintError` is raised.
 ### `infer_type`
 
 ```text
-infer_type(value: object) -> str
+infer_type(value: object) -> InferredType
 ```
 
 Returns `"null"`, `"boolean"`, `"integer"`, `"float"`, or `"string"`.
@@ -343,7 +347,7 @@ exception behavior; the alias adds no `TabulintError` handling.
 ### `Issue`
 
 ```text
-Issue(code: str, severity: str, message: str,
+Issue(code: str, severity: Severity, message: str,
       field_name: str | None = None, row: int | None = None) -> Issue
 ```
 
@@ -353,7 +357,7 @@ Returns a frozen data class. Construction does not validate fields or raise
 | Field | Meaning |
 | --- | --- |
 | `code: str` | Machine-readable code from the issue table below. |
-| `severity: str` | `"error"` or `"warning"` for built-in checks. |
+| `severity: Severity` | `"error"` or `"warning"` for built-in checks. |
 | `message: str` | Human-readable description. |
 | `field_name: str \| None` | Affected field, or `None` for a record/dataset issue. |
 | `row: int \| None` | One-based loaded record number, or `None` for a dataset issue. |
@@ -365,8 +369,8 @@ repeated record. Its message names the original record and up to ten repeats.
 ### `FieldProfile`
 
 ```text
-FieldProfile(name: str, dominant_type: str,
-             type_counts: dict[str, int] = <factory>,
+FieldProfile(name: str, dominant_type: InferredType,
+             type_counts: dict[InferredType, int] = <factory>,
              missing_count: int = 0) -> FieldProfile
 ```
 
@@ -376,8 +380,8 @@ Returns a mutable data class. Construction does not validate fields or raise
 | Field | Meaning |
 | --- | --- |
 | `name: str` | Field name. |
-| `dominant_type: str` | Dominant inferred type, or `"null"` when all values are missing. |
-| `type_counts: dict[str, int]` | Counts of each nonmissing inferred type; defaults to a new empty dictionary. |
+| `dominant_type: InferredType` | Dominant inferred type, or `"null"` when all values are missing. |
+| `type_counts: dict[InferredType, int]` | Counts of each nonmissing inferred type; defaults to a new empty dictionary. |
 | `missing_count: int` | Number of records with a missing value or absent key; defaults to zero. |
 
 ### `Report`

@@ -24,7 +24,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "mypy>=1.11,<2"]
 
 [project.scripts]
 tabulint = "tabulint.cli:main"
@@ -38,3 +38,10 @@ packages = ["src/tabulint"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/tabulint/models.py", "src/tabulint/analyzer.py"]
+mypy_path = "src"
+follow_imports = "silent"

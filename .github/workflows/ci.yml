@@ -28,6 +28,9 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Check core types
+        run: python -m mypy
+
       - name: Smoke-test the CLI
         shell: python
         run: |
