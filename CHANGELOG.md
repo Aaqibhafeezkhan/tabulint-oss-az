@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject carriage-return and line-feed CSV delimiters instead of silently reading the file as a single column.
 - Reject duplicate CSV header names before reading records instead of silently dropping earlier column values.
 - Infer nonfinite values as strings and accept integer values in dominant-float fields without noisy type-mismatch errors.
 - Reject directories and device/special input files before reading, with readable errors for symlink loops and access failures.

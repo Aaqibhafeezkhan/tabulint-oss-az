@@ -156,7 +156,9 @@ and report output. Load and output failures continue to exit 2.
 
 The `--delimiter` option applies to CSV input and accepts exactly one character.
 Use `\t` for a tab. The option is ignored for JSON input. An empty or
-multi-character delimiter is rejected with exit code 2.
+multi-character delimiter is rejected with exit code 2. A carriage return or
+line feed is also rejected with exit code 2, because those characters end CSV
+records and would otherwise produce a misleading single-column dataset.
 Malformed CSV quoting, including unterminated quoted fields, also exits with code 2.
 An overlong CSV row reports its physical line and the actual and expected field
 counts, with a reminder to check `--delimiter`. A valid single-column CSV still

@@ -297,6 +297,56 @@ def test_empty_delimiter_exits_two(write, capsys):
     assert "delimiter must be exactly one character" in capsys.readouterr().err
 
 
+@pytest.mark.parametrize("delimiter", ["\r", "\n"], ids=["carriage-return", "line-feed"])
+@pytest.mark.parametrize(
+    "content",
+    ["name,age\nAda,36\nAda,36\n", "", "name,age\n"],
+    ids=["records", "blank", "header-only"],
+)
+@pytest.mark.parametrize(
+    "extra_args",
+    [[], ["--fail-on", "error"], ["--fail-on", "warning"], ["--fail-on", "never"], ["--allow-empty"],
+     ["--fail-on", "never", "--allow-empty"]],
+    ids=["default", "fail-on-error", "fail-on-warning", "fail-on-never", "allow-empty", "never-allow-empty"],
+)
+def test_line_break_delimiter_exits_two(tmp_path, capsys, delimiter, content, extra_args):
+    path = tmp_path / "people.csv"
+    path.write_bytes(content.encode("utf-8"))
+    output = tmp_path / "report.txt"
+    argv = [str(path), "--delimiter", delimiter, "--output", str(output), *extra_args]
+    assert main(argv) == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == (
+        f"tabulint: error: {path}: CSV delimiter cannot be a line break ({delimiter!r}); "
+        "carriage return and line feed end CSV records\n"
+    )
+    assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    ("option", "content"),
+    [
+        (r"\t", "name\tage\nAda\t36\n"),
+        (";", "name;age\nAda;36\n"),
+        ("\u00a7", "name\u00a7age\nAda\u00a736\n"),
+    ],
+    ids=["tab", "semicolon", "unicode"],
+)
+def test_valid_delimiters_still_pass_via_cli(tmp_path, capsys, option, content):
+    path = tmp_path / "people.csv"
+    path.write_bytes(content.encode("utf-8"))
+    assert main([str(path), "--delimiter", option]) == EXIT_OK
+    assert "records: 1" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("delimiter", ["\r", "\n"], ids=["carriage-return", "line-feed"])
+def test_line_break_delimiter_is_ignored_for_json_via_cli(write, capsys, delimiter):
+    path = write("people.json", '[{"name": "Ada"}]')
+    assert main([path, "--delimiter", delimiter]) == EXIT_OK
+    assert "records: 1" in capsys.readouterr().out
+
+
 def test_delimiter_is_ignored_for_json_via_cli(write):
     path = write("people.json", JSON)
     assert main([path, "--delimiter", ";"]) == EXIT_OK

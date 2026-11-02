@@ -279,6 +279,57 @@ def test_delimiter_is_ignored_for_json(write):
     assert rows == [{"name": "Ada", "age": 36}, {"name": "Grace", "age": 45}]
 
 
+LINE_BREAK_DELIMITERS = pytest.mark.parametrize(
+    "delimiter", ["\r", "\n"], ids=["carriage-return", "line-feed"]
+)
+
+
+@LINE_BREAK_DELIMITERS
+@pytest.mark.parametrize(
+    "content",
+    ["name,age\nAda,36\n", "", "  \n", "name,age\n"],
+    ids=["records", "blank", "whitespace", "header-only"],
+)
+@pytest.mark.parametrize("loader", [load_csv, load_dataset])
+def test_line_break_delimiter_raises(tmp_path, loader, delimiter, content):
+    path = tmp_path / "people.csv"
+    path.write_bytes(content.encode("utf-8"))
+    with pytest.raises(TabulintError, match="CSV delimiter cannot be a line break") as exc:
+        loader(path, delimiter=delimiter)
+    assert str(path) in str(exc.value)
+    assert repr(delimiter) in str(exc.value)
+
+
+@pytest.mark.parametrize(
+    ("delimiter", "content"),
+    [
+        ("\t", "name\tage\nAda\t36\n"),
+        (";", "name;age\nAda;36\n"),
+        ("\u00a7", "name\u00a7age\nAda\u00a736\n"),
+        ("\0", "name\0age\nAda\x0036\n"),
+    ],
+    ids=["tab", "semicolon", "unicode", "nul"],
+)
+def test_unusual_but_valid_delimiters_still_load(tmp_path, delimiter, content):
+    path = tmp_path / "people.csv"
+    path.write_bytes(content.encode("utf-8"))
+    assert load_csv(path, delimiter=delimiter) == [{"name": "Ada", "age": "36"}]
+
+
+def test_single_column_csv_with_crlf_rows_remains_valid(tmp_path):
+    path = tmp_path / "names.csv"
+    path.write_bytes(b"name\r\nAda\r\nGrace\r\n")
+    assert load_csv(path) == [{"name": "Ada"}, {"name": "Grace"}]
+
+
+@LINE_BREAK_DELIMITERS
+@pytest.mark.parametrize("suffix", [".json", ".jsonl", ".ndjson"])
+def test_line_break_delimiter_is_ignored_for_json_formats(write, delimiter, suffix):
+    content = '[{"name": "Ada"}]' if suffix == ".json" else '{"name": "Ada"}\n'
+    path = write("people" + suffix, content)
+    assert load_dataset(path, delimiter=delimiter) == [{"name": "Ada"}]
+
+
 
 def test_cp1252_csv_loads_with_selected_encoding(write):
     path = write("people.csv", "name,city\nZoë,München\n", encoding="cp1252")

@@ -123,6 +123,11 @@ def _read_csv(
     path = Path(path)
     if len(delimiter) != 1:
         raise TabulintError(f"{path}: CSV delimiter must be exactly one character")
+    if delimiter in "\r\n":
+        raise TabulintError(
+            f"{path}: CSV delimiter cannot be a line break ({delimiter!r}); "
+            "carriage return and line feed end CSV records"
+        )
     _validate_input(path, encoding)
     try:
         with path.open("r", newline="", encoding=encoding) as handle:
