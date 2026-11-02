@@ -470,6 +470,31 @@ Profiles include `name`, `dominant_type`, and `missing_count`; issues include
 intentional `TabulintError` is raised; manually supplied non-serializable
 model fields can cause Python's `TypeError`.
 
+#### Versioned JSON Schema
+
+[`schemas/report-v1.schema.json`](../schemas/report-v1.schema.json) is the
+Draft 2020-12 structural contract for the current `format_report_json` output.
+It requires every serialized field, including nullable fields. Counts are
+non-negative integers; issue rows are positive integers or JSON `null`.
+`dominant_type` is one of the strings `"null"`, `"boolean"`, `"integer"`,
+`"float"`, or `"string"`: the type name `"null"` is not JSON `null`.
+Issue `field` accepts a string or JSON `null`; severity is `"error"` or `"warning"`.
+
+Report, profile, and issue objects allow unknown additive properties. Issue
+codes and human-readable messages are strings, not a frozen enumeration of
+current checks or wording. Incompatible structural changes get a new versioned
+schema file; consumers can keep a local copy of the version they validate.
+The schema is a repository/download artifact, not package data or a new report
+field. The serializer and standard-library-only runtime remain unchanged.
+
+Schema validity does not imply `ok` is true or that counts agree across fields.
+Relations such as `error_count` matching error issues, `missing_count` not
+exceeding `row_count`, and `ok` agreeing with the issues remain semantic checks.
+The schema does not assert sibling-value arithmetic. See the
+[saved-report validation example](../README.md#validate-a-saved-json-report);
+its validator is included only in development extras. Local `$defs` references
+make validation self-contained without fetching an external schema.
+
 ## Issue codes and severities
 
 These are all codes emitted by the built-in checks, including numeric and

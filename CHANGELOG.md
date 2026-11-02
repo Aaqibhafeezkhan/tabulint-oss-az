@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Publish a versioned Draft 2020-12 JSON Schema for existing JSON reports,
+  with validation tests and usage/versioning guidance.
 - Add `--allow-empty` and distinct reports for blank files, header-only CSVs,
   and record-free datasets; preserve CSV header names in empty reports.
 - Add repeatable `--allowed FIELD=a,b,c` options and Python allowed-values rules

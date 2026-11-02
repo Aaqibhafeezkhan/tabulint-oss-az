@@ -219,6 +219,36 @@ For example:
 }
 ```
 
+### Validate a saved JSON report
+
+The versioned [report v1 JSON Schema](schemas/report-v1.schema.json) describes
+the existing JSON output using Draft 2020-12. From a repository checkout,
+install the development extras (`python -m pip install -e ".[dev]"`) and validate
+a saved report without changing how tabulint runs:
+
+```python
+import json
+from pathlib import Path
+from jsonschema import Draft202012Validator
+
+schema = json.loads(Path("schemas/report-v1.schema.json").read_text(encoding="utf-8"))
+document = json.loads(Path("report.json").read_text(encoding="utf-8"))
+Draft202012Validator.check_schema(schema)
+Draft202012Validator(schema).validate(document)
+```
+
+Run this from the checkout root with your exported `report.json`. The schema
+is also available to download separately; it is not installed as package data.
+`jsonschema` is a development-only dependency, not a tabulint runtime dependency.
+The schema checks structure, not whether the dataset is clean: a report with
+errors can be valid. Read `ok`, `error_count`, and `warning_count` separately.
+
+New properties are allowed at report, profile, and issue levels. The v1 schema
+does not freeze issue codes or message wording; incompatible structural changes
+require a new schema version. Cross-field count consistency (including `ok`
+agreeing with the issues) remains a semantic rule. See the
+[API reference](docs/api.md#versioned-json-schema) for types and nullability.
+
 The `--output` / `-o` option overwrites an existing file rather than appending,
 and does not create missing parent directories. Reports are written with
 explicit UTF-8 encoding and Unix-style `\n` line endings. The report is also

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ismayilzeynal/tabulint-oss-az/main/schemas/report-v1.schema.json",
+  "title": "tabulint JSON report v1",
+  "description": "Structural contract for format_report_json output. Cross-field count consistency is a semantic rule.",
+  "type": "object",
+  "required": [
+    "path",
+    "row_count",
+    "profiles",
+    "issues",
+    "error_count",
+    "warning_count",
+    "ok"
+  ],
+  "properties": {
+    "path": {
+      "type": "string"
+    },
+    "row_count": {
+      "$ref": "#/$defs/count"
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "error_count": {
+      "$ref": "#/$defs/count"
+    },
+    "warning_count": {
+      "$ref": "#/$defs/count"
+    },
+    "ok": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "name",
+        "dominant_type",
+        "missing_count"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "dominant_type": {
+          "enum": [
+            "null",
+            "boolean",
+            "integer",
+            "float",
+            "string"
+          ]
+        },
+        "missing_count": {
+          "$ref": "#/$defs/count"
+        }
+      },
+      "additionalProperties": true
+    },
+    "issue": {
+      "type": "object",
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "field",
+        "row"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "row": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
