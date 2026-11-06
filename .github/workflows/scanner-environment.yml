@@ -1,0 +1,37 @@
+name: Scanner environment
+
+on:
+  pull_request:
+    paths:
+      - ".oss-scanner/**"
+      - ".dockerignore"
+      - ".github/workflows/scanner-environment.yml"
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+  push:
+    branches: [main]
+    paths:
+      - ".oss-scanner/**"
+      - ".dockerignore"
+      - ".github/workflows/scanner-environment.yml"
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the scanner environment
+        run: docker build -f .oss-scanner/Dockerfile -t tabulint-audit:ci .
+      - name: Run tests without network access
+        run: docker run --rm --network none tabulint-audit:ci python -m pytest -q
+      - name: Check types without network access
+        run: docker run --rm --network none tabulint-audit:ci python -m mypy

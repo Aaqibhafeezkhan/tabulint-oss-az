@@ -2,16 +2,21 @@
 
 ## Supported versions
 
-`tabulint` is pre-1.0. Only the latest release on `main` receives security fixes.
+`tabulint` is pre-1.0. Security fixes target the latest published release and
+the current `main` branch; older development snapshots are not supported.
 
 | Version | Supported |
 | --- | --- |
-| 0.1.x | Yes |
+| 0.2.x / current main | Yes |
 | older | No |
 
 ## Reporting a vulnerability
 
 Please do **not** open a public issue for a security problem.
+
+The maintainer's public security contact is
+**ismayilbaxish+oss@gmail.com**. This address accepts private security reports
+and scanner correspondence. You may use email or the GitHub channel below.
 
 Report it privately through GitHub's
 [private vulnerability reporting](https://github.com/ismayilzeynal/tabulint-oss-az/security/advisories/new)
@@ -43,3 +48,7 @@ Dataset readers reject directories, device files, and other special files
 before reading, and accept symbolic links to regular files. This is input
 validation, not a sandbox: paths can still select any regular file accessible
 to the current user, and the filesystem can change between validation and use.
+
+For audit scope, reproducible offline test commands, and severity guidance,
+see the [threat model](.oss-scanner/threat_model.md) and
+[scanner environment](.oss-scanner/README.md).

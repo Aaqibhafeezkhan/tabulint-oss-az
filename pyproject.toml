@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tabulint"
-version = "0.1.0"
+version = "0.2.0"
 description = "A lightweight open-source CLI and Python library for practical CSV/JSON data-quality checks."
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -18,6 +18,13 @@ the scope, setup, and how to claim one task. No invitation is needed.
 
 Requires Python 3.11 or newer.
 
+Download the wheel from the [GitHub Releases page](https://github.com/ismayilzeynal/tabulint-oss-az/releases)
+and install the downloaded file (for example, `python -m pip install tabulint-0.2.0-py3-none-any.whl`).
+The PyPI name `tabulint` belongs to an unrelated project; use this repository's
+release assets or source checkout.
+
+From a source checkout:
+
 ```bash
 pip install .
 ```

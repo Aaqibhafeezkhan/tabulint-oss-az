@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-06
+
+First published GitHub Release. The 0.1.0 section below records the initial
+development baseline; no historical tag or release is implied.
+
 ### Fixed
 
 - Reject carriage-return and line-feed CSV delimiters instead of silently reading the file as a single column.
@@ -23,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a reproducible scanner container and threat model for offline security review.
 - Publish a versioned Draft 2020-12 JSON Schema for existing JSON reports,
   with validation tests and usage/versioning guidance.
 - Add `--allow-empty` and distinct reports for blank files, header-only CSVs,
@@ -50,9 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reject unterminated CSV quoting with `TabulintError` instead of accepting malformed records.
 - Grouped duplicate-record reporting so each duplicated record produces one issue naming every repeated row, instead of one issue per repeat.
 
-## [0.1.0] - 2026-09-14
+## [0.1.0] development baseline - 2026-09-14
 
-Initial release.
+Initial development snapshot; no v0.1.0 tag or GitHub Release was published.
 
 ### Added
 
@@ -69,5 +75,6 @@ Initial release.
 - Python API: `check_file`, `check_records`, `format_report`, `build_numeric_rules`,
   `load_csv`, `load_json`, `load_dataset`, `analyze`, `profile_fields`, `infer_type`.
 
-[Unreleased]: https://github.com/ismayilzeynal/tabulint-oss-az/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/ismayilzeynal/tabulint-oss-az/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ismayilzeynal/tabulint-oss-az/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ismayilzeynal/tabulint-oss-az/releases/tag/v0.2.0
+[0.1.0]: https://github.com/ismayilzeynal/tabulint-oss-az/commit/9673aae96d4aef5e7a3df230b5df69f428be6cd1

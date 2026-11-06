@@ -13,7 +13,7 @@ from .validators import (
     check_allowed_values_rules, check_length_rules, check_numeric_rules, check_required_fields,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "AllowedValuesRule",

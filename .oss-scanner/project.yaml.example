@@ -1,0 +1,13 @@
+# Copy this file alone to projects/tabulint-oss-az/project.yaml in
+# anthropics/oss-scanner. Dockerfile/threat model remain in our repository.
+# Validate that directory using the upstream tools/validate.py.
+repo: https://github.com/ismayilzeynal/tabulint-oss-az#main
+primary_contact: ismayilbaxish+oss@gmail.com
+homepage: https://github.com/ismayilzeynal/tabulint-oss-az
+dockerfile: .oss-scanner/Dockerfile
+threat_model: .oss-scanner/threat_model.md
+output_format:
+  email:
+    min_severity: low
+  github_security_advisory:
+    min_severity: none
