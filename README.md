@@ -401,6 +401,9 @@ This makes `tabulint` usable as a CI gate:
 tabulint examples/clean.csv --min age=0 || exit 1
 ```
 
+For a complete copyable workflow that keeps the JSON report as an artifact
+even when the gate fails, see the [GitHub Actions recipe](docs/github-actions.md).
+
 ## Contributing
 
 Contributions are welcome. To get started:

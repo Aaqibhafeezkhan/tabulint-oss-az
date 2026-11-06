@@ -85,7 +85,9 @@ the rest of the package is outside this typing task's scope.
 CI runs the full suite and CLI smoke test on Ubuntu and Windows with Python
 3.11, 3.12, and 3.13. Windows needs no extra setup beyond the PowerShell or
 Command Prompt virtual-environment activation shown above. Symbolic-link tests
-skip when the local account cannot create links.
+skip when the local account cannot create links. For a copyable data-quality
+gate that uploads the JSON report as an artifact, see the
+[GitHub Actions recipe](docs/github-actions.md).
 
 ## 5. Create a focused branch
 
