@@ -445,15 +445,12 @@ this constant returns a string and raises no `TabulintError`.
 ### `format_report`
 
 ```text
-format_report(report: Report) -> str
+format_report(report: Report, *, max_issues: int = 50) -> str
 ```
 
 Returns text with record counts, field profiles, a missing-value summary when
-needed, and issues. Unpaired Unicode surrogates are escaped so the returned text
-can be written as UTF-8. The CLI also escapes characters unsupported by its
-console encoding; report files retain UTF-8 characters. Issues are sorted by row and code, with at most 50 shown;
-the summary still counts every issue. It adds no trailing newline and does not
-print or write a file. No intentional `TabulintError` is raised.
+needed, and issues. Unpaired Unicode surrogates are escaped so the returned text can be written as UTF-8. The CLI also escapes characters unsupported by its console encoding; report files retain UTF-8 characters. The `max_issues` parameter lets you choose how many issues are displayed, with a default of 50 and 0 showing all issues. Negative values, non-integers and booleans raise `TabulintError`. It adds no trailing newline and does not print or write a file. Issues remain sorted by row and code, and totals and the underlying issues stay unchanged.
+
 
 ### `format_report_json`
 

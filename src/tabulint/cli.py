@@ -108,13 +108,23 @@ def build_parser() -> argparse.ArgumentParser:
         default="warning",
         help="exit 1 for errors, any issues, or never (default: warning)",
     )
+    parser.add_argument(
+        "--max-issues",
+        type=int,
+        default=50,
+        metavar="N",
+        help="maximum issues shown in text reports (default: 50; 0 shows all; ignored for JSON)",
+    )
     parser.add_argument("--version", action="version", version=f"tabulint {__version__}")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI and return an exit code."""
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.max_issues < 0:
+        parser.error("--max-issues must be a non-negative integer")
     delimiter = "\t" if args.delimiter == r"\t" else args.delimiter
     try:
         rules = build_numeric_rules(args.minimums, args.maximums)
@@ -132,8 +142,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.allow_empty:
         report.issues = [issue for issue in report.issues if issue.code != "empty-dataset"]
 
-    formatter = format_report_json if args.format == "json" else format_report
-    rendered = formatter(report) + "\n"
+    if args.format == "json":
+        rendered = format_report_json(report) + "\n"
+    else:
+        rendered = format_report(report, max_issues=args.max_issues) + "\n"
 
     if args.output is not None:
         try:

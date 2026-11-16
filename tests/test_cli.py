@@ -388,7 +388,7 @@ def test_json_format_preserves_all_issues(write, capsys):
     rows = "".join(f"Ada,{i}\nAda,{i}\n" for i in range(61))
     path = write("large.csv", "name,age\n" + rows)
 
-    assert main([path, "--format", "json"]) == EXIT_ISSUES
+    assert main([path, "--format", "json", "--max-issues", "3"]) == EXIT_ISSUES
     data = json.loads(capsys.readouterr().out)
     assert len(data["issues"]) == 61
     assert all(issue["code"] == "duplicate-record" for issue in data["issues"])
@@ -480,3 +480,70 @@ def test_invalid_length_bound_exits_two(write, capsys):
     path = write("codes.csv", "code\nAB\n")
     assert main([path, "--max-length", "code=-1"]) == EXIT_ERROR
     assert "length bound" in capsys.readouterr().err
+
+
+def test_max_issues_rejects_negative_limit(write, capsys):
+    path = write("people.csv", CSV)
+    with pytest.raises(SystemExit) as exc:
+        main([path, "--max-issues", "-1"])
+
+    assert exc.value.code == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "--max-issues" in captured.err
+
+
+def test_max_issues_rejects_non_integer_limit(write, capsys):
+    path = write("people.csv", CSV)
+    with pytest.raises(SystemExit) as exc:
+        main([path, "--max-issues", "1.5"])
+
+    assert exc.value.code == EXIT_ERROR
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "--max-issues" in captured.err
+
+
+def test_max_issues_limits_text_output(write, capsys):
+    rows = "".join(f"Ada,{i}\nAda,{i}\n" for i in range(61))
+    path = write("people.csv", "name,age\n" + rows)
+
+    assert main([path, "--max-issues", "3"]) == EXIT_ISSUES
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert captured.out.count("[warning]") == 3
+    assert "... and 58 more" in captured.out
+    assert "  issues: 61\n" in captured.out
+    assert "  summary: 0 error(s), 61 warning(s)" in captured.out
+
+
+def test_max_issues_zero_shows_all_issues(write, capsys):
+    rows = "".join(f"Ada,{i}\nAda,{i}\n" for i in range(61))
+    path = write("people.csv", "name,age\n" + rows)
+
+    assert main([path, "--max-issues", "0"]) == EXIT_ISSUES
+    text = capsys.readouterr().out
+    assert text.count("[warning]") == 61
+    assert "... and" not in text
+
+
+def test_max_issues_output_file_matches_stdout(write, tmp_path, capsys):
+    rows = "".join(f"Ada,{i}\nAda,{i}\n" for i in range(61))
+    path = write("people.csv", "name,age\n" + rows)
+    output = tmp_path / "report.txt"
+
+    assert main([
+        path, "--max-issues", "3", "--output", str(output)
+    ]) == EXIT_ISSUES
+
+    text = capsys.readouterr().out
+    assert output.read_text(encoding="utf-8") == text
+    assert text.count("[warning]") == 3
+    assert "... and 58 more" in text
+
+
+def test_max_issues_preserves_quiet_summary(write, capsys):
+    path = write("people.csv", "name\nAda\nAda\nGrace\nGrace\n")
+
+    assert main([path, "--quiet", "--max-issues", "1"]) == EXIT_ISSUES
+    assert capsys.readouterr().out == f"{path}: 0 error(s), 2 warning(s)\n"

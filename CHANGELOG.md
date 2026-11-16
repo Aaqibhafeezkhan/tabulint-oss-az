@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add configurable text report limits with `--max-issues` and API `max_issues` (default 50, 0 shows all).
+
 ## [0.2.0] - 2026-11-06
 
 First published GitHub Release. The 0.1.0 section below records the initial

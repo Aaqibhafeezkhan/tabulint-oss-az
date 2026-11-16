@@ -2,7 +2,7 @@
 
 import json
 
-from .models import Report
+from .models import Report, TabulintError
 
 MAX_ISSUES_SHOWN = 50
 
@@ -16,8 +16,12 @@ def _location(row: int | None) -> str:
     return f"row {row}" if row is not None else "dataset"
 
 
-def format_report(report: Report) -> str:
+def format_report(report: Report, *, max_issues: int = MAX_ISSUES_SHOWN) -> str:
     """Render a report as plain text."""
+    if isinstance(max_issues, bool) or not isinstance(max_issues, int):
+        raise TabulintError("max_issues must be a non-negative integer")
+    if max_issues < 0:
+        raise TabulintError("max_issues must be a non-negative integer")
     lines = [f"tabulint: {report.path}", f"  records: {report.row_count}"]
 
     if report.profiles:
@@ -44,7 +48,9 @@ def format_report(report: Report) -> str:
         return _safe_text("\n".join(lines))
 
     lines.append(f"  issues: {len(report.issues)}")
-    shown = sorted(report.issues, key=lambda i: (i.row or 0, i.code))[:MAX_ISSUES_SHOWN]
+    shown = sorted(report.issues, key=lambda i: (i.row or 0, i.code))
+    if max_issues > 0:
+        shown = shown[:max_issues]
     for issue in shown:
         lines.append(f"    [{issue.severity}] {_location(issue.row)}: {issue.code}: {issue.message}")
     hidden = len(report.issues) - len(shown)

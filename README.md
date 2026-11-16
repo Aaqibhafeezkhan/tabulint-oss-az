@@ -199,6 +199,8 @@ JSON document, with no summary line mixed in. With `--quiet --format json`,
 stdout is empty when issues are found; the exit code and any `--output` file
 still carry the result.
 
+The `--max-issues N` option controls how many issues appear in the text report. The default is 50, and setting it to 0 shows all issues. Negative values and values that are not integers are rejected with exit code 2. This option does not change JSON output, issue totals or data-quality exit codes.
+
 The JSON report has a stable top-level shape containing the input path, record
 count, field profiles, every issue, error/warning counts, and the `ok` flag. Each
 profile contains `name`, `dominant_type`, and `missing_count`. Each issue
